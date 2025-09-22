@@ -3,13 +3,19 @@
 //
 
 #include "Minecraft.h"
-
 #include <net/minecraft/entity/EntityPlayerSP.h>
 #include <net/minecraft/client/multiplayer/WorldClient.h>
 
 Minecraft::Minecraft(Phantom *phantom) : AbstractClass::AbstractClass(phantom, "Minecraft") {
+    // Initialize all field/method IDs to nullptr first
+    smdGetMinecraft = nullptr;
+    fdPlayer = fdWorld = fdObjectMouseOver = fdPointedEntity = nullptr;
+    fdGameSettings = fdInGameHasFocus = fdTimer = fdEntityRenderer = nullptr;
+    fdRightClickDelayTimer = fdLeftClickMouse = nullptr;
+    mdGetRenderViewEntity = nullptr;
+    
+    // Get method/field IDs
     smdGetMinecraft = getMethodID("getMinecraft");
-
     fdPlayer = getFieldID("player");
     fdWorld = getFieldID("world");
     fdObjectMouseOver = getFieldID("objectMouseOver");
@@ -20,17 +26,15 @@ Minecraft::Minecraft(Phantom *phantom) : AbstractClass::AbstractClass(phantom, "
     fdEntityRenderer = getFieldID("entityRenderer");
     fdRightClickDelayTimer = getFieldID("rightClickDelayTimer");
     fdLeftClickMouse = getFieldID("leftClickMouse");
-
     mdGetRenderViewEntity = getMethodID("getRenderViewEntity");
 
     // init reflection backup
     reflectiveObjectMouseOverField = nullptr;
     useReflectionForObjectMouseOver = false;
 
-    // If the direct field lookup failed (likely due to obfuscation), try reflection
-    if (fdObjectMouseOver == 0) {
-        // Try to get a JNIEnv* from the Phantom or AbstractClass helper
-        JNIEnv *env = phantom->getEnv(); // adjust if your Phantom API name differs
+    // If the direct field lookup failed, try reflection
+    if (fdObjectMouseOver == nullptr) {
+        JNIEnv *env = phantom->getEnv();
         if (env) {
             jclass mcClass = env->FindClass("net/minecraft/client/Minecraft");
             if (mcClass) {
@@ -41,13 +45,24 @@ Minecraft::Minecraft(Phantom *phantom) : AbstractClass::AbstractClass(phantom, "
     }
 }
 
+// Add destructor to clean up global references
+Minecraft::~Minecraft() {
+    if (reflectiveObjectMouseOverField) {
+        JNIEnv *env = phantom->getEnv();
+        if (env) {
+            env->DeleteGlobalRef(reflectiveObjectMouseOverField);
+            reflectiveObjectMouseOverField = nullptr;
+        }
+    }
+}
+
 void Minecraft::findObjectMouseOverFieldViaReflection(JNIEnv *env, jclass mcClass) {
-    // Use reflection: Class.getDeclaredFields() and inspect each field's type to find a field
-    // whose type has a "typeOfHit" member (matching MovingObjectPosition)
     jclass classClass = env->FindClass("java/lang/Class");
     jclass fieldClass = env->FindClass("java/lang/reflect/Field");
     if (!classClass || !fieldClass) {
         if (env->ExceptionCheck()) env->ExceptionClear();
+        if (classClass) env->DeleteLocalRef(classClass);
+        if (fieldClass) env->DeleteLocalRef(fieldClass);
         return;
     }
 
@@ -58,20 +73,24 @@ void Minecraft::findObjectMouseOverFieldViaReflection(JNIEnv *env, jclass mcClas
 
     if (!getDeclaredFieldsMID || !setAccessibleMID || !getNameMID || !getTypeMID) {
         if (env->ExceptionCheck()) env->ExceptionClear();
+        env->DeleteLocalRef(classClass);
+        env->DeleteLocalRef(fieldClass);
         return;
     }
 
     jobjectArray fields = (jobjectArray) env->CallObjectMethod(mcClass, getDeclaredFieldsMID);
     if (env->ExceptionCheck()) {
         env->ExceptionClear();
+        env->DeleteLocalRef(classClass);
+        env->DeleteLocalRef(fieldClass);
         return;
     }
 
     jsize len = env->GetArrayLength(fields);
     for (jsize i = 0; i < len; ++i) {
         jobject field = env->GetObjectArrayElement(fields, i);
+        if (!field) continue;
 
-        // Get the field's type (Class)
         jobject typeClass = env->CallObjectMethod(field, getTypeMID);
         if (env->ExceptionCheck()) {
             env->ExceptionClear();
@@ -79,8 +98,6 @@ void Minecraft::findObjectMouseOverFieldViaReflection(JNIEnv *env, jclass mcClas
             continue;
         }
 
-        // Try to find a declared field named "typeOfHit" on the typeClass.
-        // If it exists, this type looks like MovingObjectPosition.
         jmethodID getDeclaredFieldMID = env->GetMethodID(classClass, "getDeclaredField", "(Ljava/lang/String;)Ljava/lang/reflect/Field;");
         if (!getDeclaredFieldMID) {
             if (env->ExceptionCheck()) env->ExceptionClear();
@@ -93,7 +110,6 @@ void Minecraft::findObjectMouseOverFieldViaReflection(JNIEnv *env, jclass mcClas
         jobject found = env->CallObjectMethod(typeClass, getDeclaredFieldMID, typeOfHitName);
 
         if (env->ExceptionCheck()) {
-            // getDeclaredField threw NoSuchFieldException — this is the normal "not this one" case.
             env->ExceptionClear();
             env->DeleteLocalRef(typeOfHitName);
             env->DeleteLocalRef(typeClass);
@@ -101,8 +117,7 @@ void Minecraft::findObjectMouseOverFieldViaReflection(JNIEnv *env, jclass mcClas
             continue;
         }
 
-        // If we got here, the field type has a "typeOfHit" member — candidate found.
-        // Make the Minecraft field accessible and store it as a global ref to the Field object.
+        // Found the field - make it accessible and store global reference
         env->CallVoidMethod(field, setAccessibleMID, JNI_TRUE);
         if (env->ExceptionCheck()) env->ExceptionClear();
 
@@ -117,28 +132,29 @@ void Minecraft::findObjectMouseOverFieldViaReflection(JNIEnv *env, jclass mcClas
         break;
     }
 
-    // cleanup array
     env->DeleteLocalRef(fields);
-    // Note: do not delete reflectiveObjectMouseOverField (global ref) — keep it for later use.
+    env->DeleteLocalRef(classClass);
+    env->DeleteLocalRef(fieldClass);
 }
 
 jobject Minecraft::getObjectMouseOver() {
-    // Fast path: direct field id (MCP/dev names)
-    if (fdObjectMouseOver != 0) {
-        return getObject(getMinecraft(), fdObjectMouseOver);
+    // Fast path: direct field id
+    if (fdObjectMouseOver != nullptr) {
+        jobject mc = getMinecraft();
+        return mc ? getObject(mc, fdObjectMouseOver) : nullptr;
     }
 
-    // Reflection fallback: use cached java.lang.reflect.Field if available
+    // Reflection fallback
     if (useReflectionForObjectMouseOver && reflectiveObjectMouseOverField != nullptr) {
-        JNIEnv *env = phantom->getEnv(); // adjust if your Phantom API name differs
+        JNIEnv *env = phantom->getEnv();
         if (!env) return nullptr;
 
-        // Field.get(Object)
         jclass fieldClass = env->FindClass("java/lang/reflect/Field");
         if (!fieldClass) {
             if (env->ExceptionCheck()) env->ExceptionClear();
             return nullptr;
         }
+        
         jmethodID getMID = env->GetMethodID(fieldClass, "get", "(Ljava/lang/Object;)Ljava/lang/Object;");
         if (!getMID) {
             if (env->ExceptionCheck()) env->ExceptionClear();
@@ -147,6 +163,11 @@ jobject Minecraft::getObjectMouseOver() {
         }
 
         jobject mc = getMinecraft();
+        if (!mc) {
+            env->DeleteLocalRef(fieldClass);
+            return nullptr;
+        }
+
         jobject value = env->CallObjectMethod(reflectiveObjectMouseOverField, getMID, mc);
         if (env->ExceptionCheck()) {
             env->ExceptionClear();
@@ -155,81 +176,100 @@ jobject Minecraft::getObjectMouseOver() {
         }
 
         env->DeleteLocalRef(fieldClass);
-        return value; // caller should treat as local ref
+        return value;
     }
 
-    // nothing found
     return nullptr;
 }
 
 jobject Minecraft::getMinecraft() {
-	return getObject(smdGetMinecraft);
+    return smdGetMinecraft ? getObject(smdGetMinecraft) : nullptr;
 }
 
 jobject Minecraft::getPlayer() {
-	return getObject(getMinecraft(), fdPlayer);
+    jobject mc = getMinecraft();
+    return (mc && fdPlayer) ? getObject(mc, fdPlayer) : nullptr;
 }
 
 jobject Minecraft::getWorld() {
-	return getObject(getMinecraft(), fdWorld);
+    jobject mc = getMinecraft();
+    return (mc && fdWorld) ? getObject(mc, fdWorld) : nullptr;
 }
 
 jobject Minecraft::getGameSettings() {
-    return getObject(getMinecraft(), fdGameSettings);
+    jobject mc = getMinecraft();
+    return (mc && fdGameSettings) ? getObject(mc, fdGameSettings) : nullptr;
 }
 
 jboolean Minecraft::isInGameHasFocus() {
-    return getBoolean(getMinecraft(), fdInGameHasFocus);
+    jobject mc = getMinecraft();
+    return (mc && fdInGameHasFocus) ? getBoolean(mc, fdInGameHasFocus) : JNI_FALSE;
 }
 
 jobject Minecraft::getRenderViewEntity() {
-    return getObject(getMinecraft(), mdGetRenderViewEntity);
+    jobject mc = getMinecraft();
+    return (mc && mdGetRenderViewEntity) ? getObject(mc, mdGetRenderViewEntity) : nullptr;
 }
 
-
-
 void Minecraft::setObjectMouseOver(jobject object) {
-    setObject(getMinecraft(), fdObjectMouseOver, object);
+    jobject mc = getMinecraft();
+    if (mc && fdObjectMouseOver) {
+        setObject(mc, fdObjectMouseOver, object);
+    }
 }
 
 jobject Minecraft::getPointedEntity() {
-    return getObject(getMinecraft(), fdPointedEntity);
+    jobject mc = getMinecraft();
+    return (mc && fdPointedEntity) ? getObject(mc, fdPointedEntity) : nullptr;
 }
 
 void Minecraft::setPointedEntity(jobject object) {
-    setObject(getMinecraft(), fdPointedEntity, object);
+    jobject mc = getMinecraft();
+    if (mc && fdPointedEntity) {
+        setObject(mc, fdPointedEntity, object);
+    }
 }
 
 jobject Minecraft::getTimer() {
-    return getObject(getMinecraft(), fdTimer);
+    jobject mc = getMinecraft();
+    return (mc && fdTimer) ? getObject(mc, fdTimer) : nullptr;
 }
 
 jobject Minecraft::getEntityRenderer() {
-    return getObject(getMinecraft(), fdEntityRenderer);
+    jobject mc = getMinecraft();
+    return (mc && fdEntityRenderer) ? getObject(mc, fdEntityRenderer) : nullptr;
 }
 
 jint Minecraft::getRightClickDelayTimer() {
-    return getInt(getMinecraft(), fdRightClickDelayTimer);
+    jobject mc = getMinecraft();
+    return (mc && fdRightClickDelayTimer) ? getInt(mc, fdRightClickDelayTimer) : 0;
 }
 
 void Minecraft::setRightClickDelayTimer(jint rightClickDelayTimer) {
-    setInt(getMinecraft(), fdRightClickDelayTimer, rightClickDelayTimer);
+    jobject mc = getMinecraft();
+    if (mc && fdRightClickDelayTimer) {
+        setInt(mc, fdRightClickDelayTimer, rightClickDelayTimer);
+    }
 }
 
 jint Minecraft::getLeftClickMouse() {
-    return getInt(getMinecraft(), fdLeftClickMouse);
+    jobject mc = getMinecraft();
+    return (mc && fdLeftClickMouse) ? getInt(mc, fdLeftClickMouse) : 0;
 }
 
 void Minecraft::setLeftClickMouse(jint leftClickMouse) {
-    setInt(getMinecraft(), fdLeftClickMouse, leftClickMouse);
+    jobject mc = getMinecraft();
+    if (mc && fdLeftClickMouse) {
+        setInt(mc, fdLeftClickMouse, leftClickMouse);
+    }
 }
 
 EntityPlayerSP Minecraft::getPlayerContainer() {
-	return EntityPlayerSP(phantom, this);
+    return EntityPlayerSP(phantom, this);
 }
 
 WorldClient Minecraft::getWorldContainer() {
-	return WorldClient(phantom, this);
+    return WorldClient(phantom, this);
 }
 
 GameSettings Minecraft::getGameSettingsContainer() {

@@ -17,7 +17,7 @@ class Entity;
 class Minecraft : public AbstractClass {
 public:
 	explicit Minecraft(Phantom *phantom);
-
+~Minecraft();
 	jobject getMinecraft();
 	jobject getPlayer();
 	jobject getWorld();

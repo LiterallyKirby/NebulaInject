@@ -336,7 +336,14 @@ protected:
     Mem &method = it->second;
     return getMethodID(method.name, method.desc, method.isStatic);
   }
-
+protected:
+    bool isValidField(jfieldID field) const {
+        return field != nullptr;
+    }
+    
+    bool isValidMethod(jmethodID method) const {
+        return method != nullptr;
+    }
 private:
   // Return: JNI field wrapper
   jfieldID getFieldID(const char *name, const char *sig, bool _static) {
