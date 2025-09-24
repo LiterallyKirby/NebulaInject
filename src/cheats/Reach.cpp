@@ -77,7 +77,7 @@ void ReachModule::run(Minecraft* mc) {
     // --- Begin original logic but using the local env variable ---
     jobject playerObj = Minecraft::GetThePlayer(env);
     if (!playerObj) {
-        jvm->DetachCurrentThread();
+
         return;
     }
 
@@ -89,7 +89,7 @@ void ReachModule::run(Minecraft* mc) {
         /*
         if (playerObj) env->DeleteLocalRef(playerObj);
         */
-        jvm->DetachCurrentThread();
+
         return;
     }
 
@@ -99,7 +99,7 @@ void ReachModule::run(Minecraft* mc) {
         if (playerObj) env->DeleteLocalRef(playerObj);
         if (worldObj) env->DeleteLocalRef(worldObj);
         */
-        jvm->DetachCurrentThread();
+
         return;
     }
 
@@ -112,7 +112,7 @@ void ReachModule::run(Minecraft* mc) {
             if (playerObj) env->DeleteLocalRef(playerObj);
             if (worldObj) env->DeleteLocalRef(worldObj);
             */
-            jvm->DetachCurrentThread();
+
             return;
         }
 
@@ -127,7 +127,7 @@ void ReachModule::run(Minecraft* mc) {
             if (playerObj) env->DeleteLocalRef(playerObj);
             if (worldObj) env->DeleteLocalRef(worldObj);
             */
-            jvm->DetachCurrentThread();
+
             return;
         }
     }
@@ -138,7 +138,7 @@ void ReachModule::run(Minecraft* mc) {
         if (playerObj) env->DeleteLocalRef(playerObj);
         if (worldObj) env->DeleteLocalRef(worldObj);
         */
-        jvm->DetachCurrentThread();
+
         return;
     }
 
@@ -273,7 +273,7 @@ void ReachModule::run(Minecraft* mc) {
                 bb.maxY = curHitbox.maxY;
                 bb.maxZ = z + newWidth;
 
-                aabb.SetNativeBoundingBox(bb);
+                aabb.SetNativeBoundingBox(bb, env);
 
                 // Comment out cleanup (DeleteLocalRef)
                 /*

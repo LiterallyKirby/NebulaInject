@@ -113,7 +113,7 @@ AxisAlignedBB_t Player::GetBoundingBox() {
     env->DeleteLocalRef(aabbObj);
 
     // Read bounding box values
-    return aabbWrapper.GetNativeBoundingBox();
+    return aabbWrapper.GetNativeBoundingBox(env);
 }
 
 
