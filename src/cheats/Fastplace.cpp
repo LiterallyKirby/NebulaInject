@@ -16,7 +16,7 @@ inline float randFloat(float min, float max) {
 }
 
 FastPlaceModule::FastPlaceModule(Phantom* phantom)
-    : Cheat("FastPlaceModule", "Fast right-click for block placement"),
+    : Cheat("Right Clicker", "Fast right-click for block placement"),
       phantom(phantom) {
     blockOnly = true;
     
@@ -77,7 +77,7 @@ void FastPlaceModule::cleanup() {
 void FastPlaceModule::run(Minecraft* mc) {
     if (!mc || !enabled || !phantom) return;
 
-    // Get JVM and attach thread
+    // Get JVM and attach thread (GetEnv first, attach only if needed)
     JavaVM* jvm = phantom->getJvm();
     if (!jvm) {
         std::cerr << "[FastPlaceModule] JVM pointer is null\n";
@@ -85,10 +85,13 @@ void FastPlaceModule::run(Minecraft* mc) {
     }
 
     JNIEnv* env = nullptr;
-    const jint attachRes = jvm->AttachCurrentThread((void**)&env, nullptr);
-    if (attachRes != JNI_OK || !env) {
-        std::cerr << "[FastPlaceModule] Failed to attach thread to JVM: " << attachRes << "\n";
-        return;
+    bool attachedHere = false;
+    if (jvm->GetEnv((void**)&env, JNI_VERSION_1_6) != JNI_OK || !env) {
+        if (jvm->AttachCurrentThread((void**)&env, nullptr) != JNI_OK || !env) {
+            std::cerr << "[FastPlaceModule] Failed to attach thread to JVM\n";
+            return;
+        }
+        attachedHere = true;
     }
 
     // Initialize X11 display if needed
@@ -96,6 +99,7 @@ void FastPlaceModule::run(Minecraft* mc) {
         xDisplay = XOpenDisplay(nullptr);
         if (!xDisplay) {
             isHolding = false;
+            if (attachedHere) jvm->DetachCurrentThread();
             return;
         }
     }
@@ -105,21 +109,46 @@ void FastPlaceModule::run(Minecraft* mc) {
     if (mouseState.numButtons <= 2 || mouseState.buttonStates == nullptr) {
         XUtils::isDeviceShit = true;
         isHolding = false;
+        if (attachedHere) jvm->DetachCurrentThread();
         return;
     } else {
         XUtils::isDeviceShit = false;
     }
 
-    // Check right mouse button (button index 3 for right-click)
+    // Robust right-button detection (handles 0-based vs 1-based and fallback)
     bool rightButtonHeld = false;
-    if (mouseState.numButtons > 3) {
-        rightButtonHeld = mouseState.buttonStates[3];
+    unsigned int mask = 0; // <<--- moved here so it's visible for debug print below
+
+    // Try common indexing
+    if (mouseState.numButtons >= 3) {
+        // try 0-based index 2 first, then 1-based index 3
+        if (mouseState.buttonStates[2]) rightButtonHeld = true;
+        else if (mouseState.numButtons > 3 && mouseState.buttonStates[3]) rightButtonHeld = true;
+    }
+
+    // Fallback: query pointer mask from X if the above didn't detect a right button
+    if (!rightButtonHeld) {
+        Window root, child;
+        int root_x, root_y, win_x, win_y;
+        if (XQueryPointer(xDisplay, DefaultRootWindow(xDisplay), &root, &child,
+                          &root_x, &root_y, &win_x, &win_y, &mask)) {
+            rightButtonHeld = (mask & Button3Mask);
+        }
+    }
+
+    // Debugging output (remove later)
+    if (false) {
+        std::cout << "[FastPlace] numButtons=" << mouseState.numButtons
+                  << " btn2=" << (mouseState.numButtons > 2 ? (int)mouseState.buttonStates[2] : 0)
+                  << " btn3=" << (mouseState.numButtons>3? (int)mouseState.buttonStates[3] : 0)
+                  << " qmask=" << (mask & Button3Mask) << " right=" << rightButtonHeld << "\n";
     }
 
     // Get the player object
     jobject playerObj = Minecraft::GetThePlayer(env);
     if (!playerObj) {
         isHolding = false;
+        if (attachedHere) jvm->DetachCurrentThread();
         return;
     }
 
@@ -132,11 +161,13 @@ void FastPlaceModule::run(Minecraft* mc) {
         ItemStack* heldItem = thePlayer.GetHeldItem();
         if (!heldItem) {
             isHolding = false;
+            if (attachedHere) jvm->DetachCurrentThread();
             return;
         }
 
         if (!heldItem->IsBlock(env)) {
             isHolding = false;
+            if (attachedHere) jvm->DetachCurrentThread();
             return;
         }
     }
@@ -150,6 +181,7 @@ void FastPlaceModule::run(Minecraft* mc) {
     } else if (!rightButtonHeld) {
         isHolding = false;
         shouldClick = false;
+        if (attachedHere) jvm->DetachCurrentThread();
         return;
     }
 
@@ -159,6 +191,9 @@ void FastPlaceModule::run(Minecraft* mc) {
         updateValues();
         performRightClick();
     }
+
+    // detach if we attached here
+    if (attachedHere) jvm->DetachCurrentThread();
 }
 
 void FastPlaceModule::renderSettings() {

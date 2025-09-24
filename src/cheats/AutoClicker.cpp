@@ -1,108 +1,200 @@
-#include "Fastplace.h"
-#include <Minecraft.h>
+//
+// AutoClicker.cpp — cached Display, burst worker, no sword checks
+//
+#include "AutoClicker.h"
+#include <random>
 #include <imgui.h>
 #include <EntityPlayerSP.h>
-#include <iostream>
-#include <random>
+#include <unistd.h>  // close
+
+#include <algorithm>
 #include <chrono>
 #include <thread>
-#include <algorithm>
+
+#include "../utils/ImGuiUtils.h"
+
 #include "../utils/XUtils.h"
+#include <Minecraft.h>
 
 inline float randFloat(float min, float max) {
     static thread_local std::mt19937 rng(std::random_device{}());
     std::uniform_real_distribution<float> dist(min, max);
     return dist(rng);
 }
+AutoClicker::AutoClicker()
+    : Cheat("AutoClicker", "Clicks 4 u (so ur hand doesn't break)") {
+    cps = 12.0f;
+    onlyInGame = true;
+    mineBlocks = true;
 
-FastPlaceModule::FastPlaceModule(Phantom* phantom)
-    : Cheat("FastPlaceModule", "Fast right-click for block placement"),
-      phantom(phantom) {
-    blockOnly = true;
-    
-    // Right-click specific settings
-    cps = 8.0f;  // Lower CPS for right-click (more realistic)
-    randomizeCps = true;
-    cpsVariance = 1.0f;
-    jitterMs = 3.0f;
-    holdLength = 0.2f;
-    holdLengthRandom = 0.08f;
-    
-    // Timers
     clickTimer = std::make_unique<MSTimer>();
     eventTimer = std::make_unique<MSTimer>();
-    
+    releaseTimer = std::make_unique<MSTimer>();
+    burstTimer = std::make_unique<MSTimer>();
+
     nextDelay = 0;
-    eventDelay = 400;
-    nextEventDelay = static_cast<int>(randFloat(0.8f, 1.2f) * (float)eventDelay);
-    
-    // Spike/drop for natural variation
-    dropChance = 0.15f;
-    spikeChance = 0.1f;
-    spikeMultiplier = 1.3f;
-    
-    // State tracking
-    isHolding = false;
-    shouldClick = false;
-    
-    // X11 display
-    xDisplay = nullptr;
-    
-    initialize();
+    eventDelay = 350;
+    nextEventDelay =
+        static_cast<int>(randFloat(0.8f, 1.2f) * (float)eventDelay);
+
+    dropChance = 0.3f;
+    spikeChance = 0.2f;
+    spikeMultiplier = 1.15f;
+
+    holdLength = 0.15f;
+    holdLengthRandom = 0.05f;
+    jitterMs = 2.0f;
+
+    burstMode = false;
+    burstClicks = 3;
+    burstDelayMs = 150;
+
+    showAdvanced = false;
+    randomizeCps = true;
+    cpsVariance = 0.1f;
+
+    uinput_fd = -1;
+    shouldRelease = false;
+    keyPressed = false;
+    releaseDelayMs = 50;
+
+    // Initialize cached display and burst worker
+    initializeDisplay();
+    initializeUInput();
+
+    // Start burst worker
+    burstWorkerRunning = true;
+    burstThread = std::thread(&AutoClicker::burstWorkerLoop, this);
 }
 
-FastPlaceModule::~FastPlaceModule() { cleanup(); }
+AutoClicker::~AutoClicker() {
+    // Stop burst worker
+    burstWorkerRunning = false;
+    {
+        std::lock_guard<std::mutex> lk(burstMutex);
+        burstCv.notify_all();
+    }
+    if (burstThread.joinable()) burstThread.join();
 
-void FastPlaceModule::initialize() {
-    std::cout << "[FastPlaceModule] Initialized" << std::endl;
-    
-    // Initialize X11 display
+    cleanup();
+}
+
+void AutoClicker::initializeDisplay() {
     if (!xDisplay) {
         xDisplay = XOpenDisplay(nullptr);
-        if (!xDisplay) {
-            std::cerr << "[FastPlaceModule] Failed to open X11 display\n";
-        }
     }
 }
 
-void FastPlaceModule::cleanup() {
-    std::cout << "[FastPlaceModule] Cleaned up" << std::endl;
-    
+void AutoClicker::initializeUInput() { uinput_fd = -1; }
+
+void AutoClicker::cleanup() {
+    if (uinput_fd != -1) {
+        ::close(uinput_fd);
+        uinput_fd = -1;
+    }
     if (xDisplay) {
         XCloseDisplay(xDisplay);
         xDisplay = nullptr;
     }
 }
 
-void FastPlaceModule::run(Minecraft* mc) {
-    if (!mc || !enabled || !phantom) return;
+void AutoClicker::reset(Minecraft *mc) {
+    (void)mc;
+    isHolding = false;
+    shouldClick = false;
+    isSpiking = false;
+    isDropping = false;
 
-    // Get JVM and attach thread
-    JavaVM* jvm = phantom->getJvm();
-    if (!jvm) {
-        std::cerr << "[FastPlaceModule] JVM pointer is null\n";
-        return;
+    if (clickTimer) clickTimer->reset();
+    if (eventTimer) eventTimer->reset();
+    if (releaseTimer) releaseTimer->reset();
+    if (burstTimer) burstTimer->reset();
+
+    {
+        std::lock_guard<std::mutex> lk(burstMutex);
+        burstQueue.clear();
+    }
+}
+
+// add this to AutoClicker.cpp
+
+void AutoClicker::renderSettings() {
+    ImGui::Text("AutoClicker");
+    ImGui::Separator();
+
+    // General
+    ImGui::Checkbox("Only in game", &onlyInGame);
+    ImGui::Checkbox("Mine blocks (disable while aiming at blocks)",
+                    &mineBlocks);
+
+    ImGui::Spacing();
+
+    // CPS settings
+    ImGui::Checkbox("Randomize CPS", &randomizeCps);
+    if (!randomizeCps) {
+        ImGui::SliderFloat("CPS", &cps, 1.0f, 40.0f, "%.1f");
+    } else {
+        ImGui::SliderFloat("Target CPS", &cps, 1.0f, 40.0f, "%.1f");
+        ImGui::SliderFloat("CPS variance", &cpsVariance, 0.0f, 5.0f, "%.2f");
     }
 
-    JNIEnv* env = nullptr;
-    const jint attachRes = jvm->AttachCurrentThread((void**)&env, nullptr);
-    if (attachRes != JNI_OK || !env) {
-        std::cerr << "[FastPlaceModule] Failed to attach thread to JVM: " << attachRes << "\n";
-        return;
+    ImGui::SliderFloat("Jitter (ms)", &jitterMs, 0.0f, 25.0f, "%.1f");
+    ImGui::SliderFloat("Hold length (fraction)", &holdLength, 0.0f, 1.0f,
+                       "%.2f");
+    ImGui::SliderFloat("Hold length randomness", &holdLengthRandom, 0.0f, 0.5f,
+                       "%.2f");
+
+    ImGui::Spacing();
+
+    // Burst
+    ImGui::Checkbox("Burst mode", &burstMode);
+    if (burstMode) {
+        ImGui::SliderInt("Burst clicks", &burstClicks, 2, 50);
+        ImGui::SliderInt("Burst delay (ms)", &burstDelayMs, 10, 2000);
     }
 
-    // Initialize X11 display if needed
+    ImGui::Spacing();
+
+    // Spike / Drop behaviour
+    if (ImGui::CollapsingHeader("Spike & Drop (advanced)")) {
+        ImGui::SliderFloat("Drop chance", &dropChance, 0.0f, 1.0f, "%.2f");
+        ImGui::SliderFloat("Spike chance", &spikeChance, 0.0f, 1.0f, "%.2f");
+        ImGui::SliderFloat("Spike multiplier", &spikeMultiplier, 1.0f, 10.0f,
+                           "%.2f");
+    }
+
+    ImGui::Spacing();
+
+    // Release / misc
+    ImGui::SliderInt("Release delay (ms)", &releaseDelayMs, 0, 1000);
+
+    // Optional debug/advanced info
+    if (showAdvanced) {
+        ImGui::Separator();
+        ImGui::Text("Advanced / debug:");
+        ImGui::Text("uinput_fd: %d", uinput_fd);
+        ImGui::Text("nextDelay (ms): %d", nextDelay);
+        ImGui::Text("burstQueue size: %zu", burstQueue.size());
+    }
+}
+
+void AutoClicker::run(Minecraft *mc) {
+    if (!mc) return;
+
+  
+
     if (!xDisplay) {
-        xDisplay = XOpenDisplay(nullptr);
+        initializeDisplay();
         if (!xDisplay) {
             isHolding = false;
             return;
         }
     }
 
-    // Get mouse state
-    XUtils::DeviceState mouseState = XUtils::getDeviceState(xDisplay, XUtils::mouseDeviceID);
-    if (mouseState.numButtons <= 2 || mouseState.buttonStates == nullptr) {
+    XUtils::DeviceState mouseState =
+        XUtils::getDeviceState(xDisplay, XUtils::mouseDeviceID);
+
+    if (mouseState.numButtons <= 1 || mouseState.buttonStates == nullptr) {
         XUtils::isDeviceShit = true;
         isHolding = false;
         return;
@@ -110,119 +202,113 @@ void FastPlaceModule::run(Minecraft* mc) {
         XUtils::isDeviceShit = false;
     }
 
-    // Check right mouse button (button index 3 for right-click)
-    bool rightButtonHeld = false;
-    if (mouseState.numButtons > 3) {
-        rightButtonHeld = mouseState.buttonStates[3];
+    bool leftButtonHeld = false;
+    if (mouseState.numButtons > 1) {
+        leftButtonHeld = mouseState.buttonStates[1];
+    } else if (mouseState.numButtons > 0) {
+        leftButtonHeld = mouseState.buttonStates[0];
     }
 
-    // Get the player object
-    jobject playerObj = Minecraft::GetThePlayer(env);
-    if (!playerObj) {
-        isHolding = false;
-        return;
-    }
-
-    // Create Player wrapper
-    Player thePlayer(env, playerObj);
-
-    // Check if we should fast place (only with blocks if blockOnly is enabled)
-    bool shouldFastPlace = true;
-    if (blockOnly) {
-        ItemStack* heldItem = thePlayer.GetHeldItem();
-        if (!heldItem) {
-            isHolding = false;
-            return;
-        }
-
-        if (!heldItem->IsBlock(env)) {
-            isHolding = false;
-            return;
-        }
-    }
-
-    // Handle right-click holding state
-    if (rightButtonHeld && !isHolding.load()) {
+    if (leftButtonHeld && !isHolding.load()) {
         isHolding = true;
         clickTimer->reset();
         shouldClick = true;
-        std::cout << "[FastPlaceModule] Started fast placing\n";
-    } else if (!rightButtonHeld) {
+    } else if (!leftButtonHeld) {
         isHolding = false;
         shouldClick = false;
+        std::lock_guard<std::mutex> lk(burstMutex);
+        burstQueue.clear();
         return;
     }
 
-    // Perform fast right-clicks while holding
     if (isHolding && shouldClick && clickTimer->hasTimePassed(nextDelay)) {
         clickTimer->reset();
         updateValues();
-        performRightClick();
+
+        if (burstMode && burstClicks > 1) {
+            int baseHold = static_cast<int>(nextDelay * holdLength);
+            float randFac = randFloat(1.0f - holdLengthRandom,
+                                                  1.0f + holdLengthRandom);
+            int holdTime = static_cast<int>(baseHold * randFac);
+            holdTime = std::clamp(holdTime, 10, std::max(10, nextDelay / 2));
+
+            requestBurst(burstClicks, 50, holdTime);
+            nextDelay = std::max(nextDelay, burstDelayMs);
+        } else {
+            performClick(mc);
+        }
     }
 }
 
-void FastPlaceModule::renderSettings() {
-    ImGui::Text("FastPlace Settings");
-    ImGui::Separator();
-    
-    ImGui::Checkbox("Block Only", &blockOnly);
-    ImGui::SameLine();
-    if (ImGui::IsItemHovered()) {
-        ImGui::SetTooltip("Only enable fast place when holding blocks");
+void AutoClicker::requestBurst(int clicks, int spacingMs, int holdMs) {
+    {
+        std::lock_guard<std::mutex> lk(burstMutex);
+        burstQueue.push_back({clicks, spacingMs, holdMs});
     }
-    
-    ImGui::Spacing();
-    
-    // CPS settings for right-click
-    ImGui::Checkbox("Randomize CPS", &randomizeCps);
-    if (!randomizeCps) {
-        ImGui::SliderFloat("CPS", &cps, 1.0f, 20.0f, "%.1f");
-    } else {
-        ImGui::SliderFloat("Target CPS", &cps, 1.0f, 20.0f, "%.1f");
-        ImGui::SliderFloat("CPS variance", &cpsVariance, 0.0f, 3.0f, "%.2f");
-    }
-    
-    ImGui::SliderFloat("Jitter (ms)", &jitterMs, 0.0f, 10.0f, "%.1f");
-    ImGui::SliderFloat("Hold length (fraction)", &holdLength, 0.0f, 1.0f, "%.2f");
-    ImGui::SliderFloat("Hold randomness", &holdLengthRandom, 0.0f, 0.3f, "%.2f");
-    
-    ImGui::Spacing();
-    
-    // Advanced timing variation
-    if (ImGui::CollapsingHeader("Timing Variation")) {
-        ImGui::SliderFloat("Drop chance", &dropChance, 0.0f, 0.5f, "%.2f");
-        ImGui::SliderFloat("Spike chance", &spikeChance, 0.0f, 0.3f, "%.2f");
-        ImGui::SliderFloat("Spike multiplier", &spikeMultiplier, 1.0f, 3.0f, "%.2f");
+    burstCv.notify_one();
+}
+
+void AutoClicker::burstWorkerLoop() {
+    while (burstWorkerRunning) {
+        BurstRequest req;
+        bool have = false;
+        {
+            std::unique_lock<std::mutex> lk(burstMutex);
+            burstCv.wait(lk, [&]() {
+                return !burstQueue.empty() || !burstWorkerRunning;
+            });
+            if (!burstWorkerRunning) break;
+            if (!burstQueue.empty()) {
+                req = burstQueue.front();
+                burstQueue.erase(burstQueue.begin());
+                have = true;
+            }
+        }
+        if (!have) continue;
+
+        for (int i = 0; i < req.clicks && burstWorkerRunning; ++i) {
+            performClickImmediate(req.holdMs);
+            if (i + 1 < req.clicks) {
+                std::this_thread::sleep_for(
+                    std::chrono::milliseconds(req.spacingMs));
+            }
+        }
     }
 }
 
-void FastPlaceModule::performRightClick() {
+void AutoClicker::performClickImmediate(int holdMs) {
+    XUtils::clickMouseXEvent(1, holdMs);
+}
+
+void AutoClicker::performClick(Minecraft *mc) {
+    (void)mc;
     int baseHold = static_cast<int>(nextDelay * holdLength);
-    float randFac = randFloat(1.0f - holdLengthRandom, 1.0f + holdLengthRandom);
+    float randFac =
+        randFloat(1.0f - holdLengthRandom, 1.0f + holdLengthRandom);
     int holdTime = static_cast<int>(baseHold * randFac);
     holdTime = std::clamp(holdTime, 10, std::max(10, nextDelay / 2));
 
     if (jitterMs > 0.0f) {
         int jitter = static_cast<int>(randFloat(0.0f, jitterMs));
-        if (jitter > 0) {
+        if (jitter > 0)
             std::this_thread::sleep_for(std::chrono::milliseconds(jitter));
-        }
     }
 
-    // Perform right-click (button 3 for right mouse button)
-    std::thread([](int btn, int hold) { 
-        XUtils::clickMouseXEvent(btn, hold); 
-    }, 3, holdTime).detach();
+    std::thread([](int btn, int hold) { XUtils::clickMouseXEvent(btn, hold); },
+                1, holdTime)
+        .detach();
 }
 
-void FastPlaceModule::updateValues() {
-    // Ensure CPS is reasonable
+
+void AutoClicker::updateValues() {
+    // Basic guard: ensure cps sane
     float baseCps = cps;
     if (baseCps <= 0.01f) baseCps = 0.01f;
 
     // Randomize CPS if requested
     float effectiveCps = baseCps;
     if (randomizeCps) {
+        // treat cpsVariance as absolute CPS variance
         float var = cpsVariance;
         effectiveCps = baseCps + randFloat(-var, var);
         if (effectiveCps < 0.01f) effectiveCps = 0.01f;
@@ -231,32 +317,41 @@ void FastPlaceModule::updateValues() {
     // Convert to delay (ms)
     int computedDelay = static_cast<int>(1000.0f / effectiveCps);
 
-    // Event-based variation: occasional spikes and drops
+    // Event based spike/drop: occasionally make a unusually long or short delay
     if (eventTimer && eventTimer->hasTimePassed(nextEventDelay)) {
         float r = randFloat(0.0f, 1.0f);
         if (r < dropChance) {
-            // Drop: increase delay (slower click)
-            int extra = static_cast<int>(randFloat(50.0f, 200.0f));
+            // Drop: significantly increase delay for this click
+            int extra = static_cast<int>(randFloat(100.0f, 600.0f)); // 100-600ms extra
             computedDelay += extra;
         } else if (r < dropChance + spikeChance) {
-            // Spike: reduce delay (faster click)
+            // Spike: reduce delay for this click (faster bursts)
             computedDelay = static_cast<int>(computedDelay / spikeMultiplier);
             if (computedDelay < 1) computedDelay = 1;
         }
 
-        // Schedule next event
+        // schedule next event (randomize slightly)
         nextEventDelay = static_cast<int>(randFloat(0.8f, 1.2f) * (float)eventDelay);
         eventTimer->reset();
     }
 
-    // Apply jitter to timing
+    // Jitter: micro-variation to make timing less uniform
     if (jitterMs > 0.0f) {
         int jitter = static_cast<int>(randFloat(-jitterMs, jitterMs));
         computedDelay += jitter;
     }
 
-    // Clamp to reasonable bounds
+    // Clamp nextDelay to reasonable bounds
     constexpr int MIN_DELAY = 1;
-    constexpr int MAX_DELAY = 5000;
+    constexpr int MAX_DELAY = 10000;
     nextDelay = std::clamp(computedDelay, MIN_DELAY, MAX_DELAY);
+
+    // Release handling: optionally clear shouldRelease after configured delay
+    if (shouldRelease && releaseTimer) {
+        if (releaseTimer->hasTimePassed(releaseDelayMs)) {
+            shouldRelease = false;
+            // reset the timer so we don't immediately retrigger
+            releaseTimer->reset();
+        }
+    }
 }
