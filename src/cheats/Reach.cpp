@@ -56,9 +56,10 @@ void ReachModule::cleanup() {
     std::cout << "[ReachModule] Cleaned up" << std::endl;
 }
 
+
 void ReachModule::run(Minecraft* mc) {
-   
-   if (!mc || !phantom) return;
+
+    if (!mc || !phantom) return;
 
     JavaVM* jvm = phantom->getJvm();
     if (!jvm) {
@@ -84,15 +85,20 @@ void ReachModule::run(Minecraft* mc) {
 
     jobject worldObj = mc->GetTheWorld(env);
     if (!worldObj) {
-        // cleanup
+        // Comment out cleanup (DeleteLocalRef)
+        /*
         if (playerObj) env->DeleteLocalRef(playerObj);
+        */
         jvm->DetachCurrentThread();
         return;
     }
 
     if (onGround && !thePlayer.IsOnGround()) {
+        // Comment out cleanup (DeleteLocalRef)
+        /*
         if (playerObj) env->DeleteLocalRef(playerObj);
         if (worldObj) env->DeleteLocalRef(worldObj);
+        */
         jvm->DetachCurrentThread();
         return;
     }
@@ -101,8 +107,11 @@ void ReachModule::run(Minecraft* mc) {
         ItemStack* heldItem = thePlayer.GetHeldItem();
         if (!heldItem) {
             std::cout << "[ReachModule] No held item\n";
+            // Comment out cleanup (DeleteLocalRef)
+            /*
             if (playerObj) env->DeleteLocalRef(playerObj);
             if (worldObj) env->DeleteLocalRef(worldObj);
+            */
             jvm->DetachCurrentThread();
             return;
         }
@@ -112,18 +121,23 @@ void ReachModule::run(Minecraft* mc) {
 
         if (!heldItem->IsWeapon()) {
             std::cout << "[ReachModule] Held item is NOT a weapon\n";
+            // Comment out cleanup (DeleteLocalRef)
+            /*
             delete heldItem;
             if (playerObj) env->DeleteLocalRef(playerObj);
             if (worldObj) env->DeleteLocalRef(worldObj);
+            */
             jvm->DetachCurrentThread();
             return;
         }
-
     }
 
     if (liquidCheck && thePlayer.IsInWater()) {
+        // Comment out cleanup (DeleteLocalRef)
+        /*
         if (playerObj) env->DeleteLocalRef(playerObj);
         if (worldObj) env->DeleteLocalRef(worldObj);
+        */
         jvm->DetachCurrentThread();
         return;
     }
@@ -261,15 +275,22 @@ void ReachModule::run(Minecraft* mc) {
 
                 aabb.SetNativeBoundingBox(bb);
 
+                // Comment out cleanup (DeleteLocalRef)
+                /*
                 env->DeleteLocalRef(aabbObj);
+                */
             }
         }
     }
 
+    // Comment out deleting players in players vector
+    /*
     for (Player* pl : players) {
         if (pl != target) delete pl;
     }
+    */
 }
+
 
 void ReachModule::renderSettings() {
     ImGui::Text("Reach Module Settings");
