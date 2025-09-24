@@ -6,7 +6,7 @@
 #ifndef PHANTOM_CHEAT_H
 #define PHANTOM_CHEAT_H
 
-#include <net/minecraft/client/Minecraft.h>
+#include <Minecraft.h>
 
 class Cheat {
 public:
@@ -23,8 +23,10 @@ public:
     bool enabled;
     bool binding;
     int bind;
-private:
+
     const char *name;
+private:
+
     const char *description;
 };
 

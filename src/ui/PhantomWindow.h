@@ -7,6 +7,7 @@
 #define NEBULA_NEBULAWINDOW_H
 
 #include <vector>
+#include <GL/glew.h>  
 #include <SDL.h>
 #include "../cheats/Cheat.h"
 

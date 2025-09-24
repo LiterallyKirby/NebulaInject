@@ -10,7 +10,6 @@ static ImFont *Regular = nullptr;
 static ImFont *Bold = nullptr;
 static ImFont *Header = nullptr;
 
-
 inline void loadFonts(float baseSize = 16.0f) {
     ImGuiIO &io = ImGui::GetIO();
     io.Fonts->Clear();
@@ -22,9 +21,11 @@ inline void loadFonts(float baseSize = 16.0f) {
     // Config for merging
     ImFontConfig mergeConfig;
     mergeConfig.MergeMode = true;
+    mergeConfig.FontDataOwnedByAtlas = false; // Prevent ImGui from freeing static font data
 
     // 1) Create Regular font **with merged glyphs at creation**
-    ImFontConfig regularConfig; // default, not merge
+    ImFontConfig regularConfig;
+    regularConfig.FontDataOwnedByAtlas = false; // Prevent freeing
     Regular = io.Fonts->AddFontFromMemoryTTF(
         JetBrainsMonoNerdFont_Regular_ttf,
         JetBrainsMonoNerdFont_Regular_ttf_len,
@@ -51,7 +52,6 @@ inline void loadFonts(float baseSize = 16.0f) {
         star_ranges
     );
 
-    // Now Regular contains text + Nerd icons + stars
     io.FontDefault = Regular;
 }
 

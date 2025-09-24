@@ -1,0 +1,200 @@
+[
+{
+  "directory": "/home/kirby/Programming/NebulaInject/build-inject",
+  "command": "/usr/bin/c++ -Dphantom_EXPORTS -I/usr/lib/jvm/java-8-openjdk/include -I/usr/lib/jvm/java-8-openjdk/include/linux -I/home/kirby/Programming/NebulaInject/vendor/imgui -I/home/kirby/Programming/NebulaInject/src/mapping/impl -isystem /usr/include/SDL2 -g -std=gnu++23 -fPIC -g3 -ggdb -fno-omit-frame-pointer -fstack-protector-strong -Wall -Wextra -Wpedantic -Wformat-security -Wstack-protector -fstack-clash-protection -o CMakeFiles/phantom.dir/src/Phantom.cpp.o -c /home/kirby/Programming/NebulaInject/src/Phantom.cpp",
+  "file": "/home/kirby/Programming/NebulaInject/src/Phantom.cpp",
+  "output": "/home/kirby/Programming/NebulaInject/build-inject/CMakeFiles/phantom.dir/src/Phantom.cpp.o"
+},
+{
+  "directory": "/home/kirby/Programming/NebulaInject/build-inject",
+  "command": "/usr/bin/c++ -Dphantom_EXPORTS -I/usr/lib/jvm/java-8-openjdk/include -I/usr/lib/jvm/java-8-openjdk/include/linux -I/home/kirby/Programming/NebulaInject/vendor/imgui -I/home/kirby/Programming/NebulaInject/src/mapping/impl -isystem /usr/include/SDL2 -g -std=gnu++23 -fPIC -g3 -ggdb -fno-omit-frame-pointer -fstack-protector-strong -Wall -Wextra -Wpedantic -Wformat-security -Wstack-protector -fstack-clash-protection -o CMakeFiles/phantom.dir/src/cheats/AutoClicker.cpp.o -c /home/kirby/Programming/NebulaInject/src/cheats/AutoClicker.cpp",
+  "file": "/home/kirby/Programming/NebulaInject/src/cheats/AutoClicker.cpp",
+  "output": "/home/kirby/Programming/NebulaInject/build-inject/CMakeFiles/phantom.dir/src/cheats/AutoClicker.cpp.o"
+},
+{
+  "directory": "/home/kirby/Programming/NebulaInject/build-inject",
+  "command": "/usr/bin/c++ -Dphantom_EXPORTS -I/usr/lib/jvm/java-8-openjdk/include -I/usr/lib/jvm/java-8-openjdk/include/linux -I/home/kirby/Programming/NebulaInject/vendor/imgui -I/home/kirby/Programming/NebulaInject/src/mapping/impl -isystem /usr/include/SDL2 -g -std=gnu++23 -fPIC -g3 -ggdb -fno-omit-frame-pointer -fstack-protector-strong -Wall -Wextra -Wpedantic -Wformat-security -Wstack-protector -fstack-clash-protection -o CMakeFiles/phantom.dir/src/cheats/Cheat.cpp.o -c /home/kirby/Programming/NebulaInject/src/cheats/Cheat.cpp",
+  "file": "/home/kirby/Programming/NebulaInject/src/cheats/Cheat.cpp",
+  "output": "/home/kirby/Programming/NebulaInject/build-inject/CMakeFiles/phantom.dir/src/cheats/Cheat.cpp.o"
+},
+{
+  "directory": "/home/kirby/Programming/NebulaInject/build-inject",
+  "command": "/usr/bin/c++ -Dphantom_EXPORTS -I/usr/lib/jvm/java-8-openjdk/include -I/usr/lib/jvm/java-8-openjdk/include/linux -I/home/kirby/Programming/NebulaInject/vendor/imgui -I/home/kirby/Programming/NebulaInject/src/mapping/impl -isystem /usr/include/SDL2 -g -std=gnu++23 -fPIC -g3 -ggdb -fno-omit-frame-pointer -fstack-protector-strong -Wall -Wextra -Wpedantic -Wformat-security -Wstack-protector -fstack-clash-protection -o CMakeFiles/phantom.dir/src/library.cpp.o -c /home/kirby/Programming/NebulaInject/src/library.cpp",
+  "file": "/home/kirby/Programming/NebulaInject/src/library.cpp",
+  "output": "/home/kirby/Programming/NebulaInject/build-inject/CMakeFiles/phantom.dir/src/library.cpp.o"
+},
+{
+  "directory": "/home/kirby/Programming/NebulaInject/build-inject",
+  "command": "/usr/bin/c++ -Dphantom_EXPORTS -I/usr/lib/jvm/java-8-openjdk/include -I/usr/lib/jvm/java-8-openjdk/include/linux -I/home/kirby/Programming/NebulaInject/vendor/imgui -I/home/kirby/Programming/NebulaInject/src/mapping/impl -isystem /usr/include/SDL2 -g -std=gnu++23 -fPIC -g3 -ggdb -fno-omit-frame-pointer -fstack-protector-strong -Wall -Wextra -Wpedantic -Wformat-security -Wstack-protector -fstack-clash-protection -o CMakeFiles/phantom.dir/src/mapping/AbstractClass.cpp.o -c /home/kirby/Programming/NebulaInject/src/mapping/AbstractClass.cpp",
+  "file": "/home/kirby/Programming/NebulaInject/src/mapping/AbstractClass.cpp",
+  "output": "/home/kirby/Programming/NebulaInject/build-inject/CMakeFiles/phantom.dir/src/mapping/AbstractClass.cpp.o"
+},
+{
+  "directory": "/home/kirby/Programming/NebulaInject/build-inject",
+  "command": "/usr/bin/c++ -Dphantom_EXPORTS -I/usr/lib/jvm/java-8-openjdk/include -I/usr/lib/jvm/java-8-openjdk/include/linux -I/home/kirby/Programming/NebulaInject/vendor/imgui -I/home/kirby/Programming/NebulaInject/src/mapping/impl -isystem /usr/include/SDL2 -g -std=gnu++23 -fPIC -g3 -ggdb -fno-omit-frame-pointer -fstack-protector-strong -Wall -Wextra -Wpedantic -Wformat-security -Wstack-protector -fstack-clash-protection -o CMakeFiles/phantom.dir/src/mapping/Field.cpp.o -c /home/kirby/Programming/NebulaInject/src/mapping/Field.cpp",
+  "file": "/home/kirby/Programming/NebulaInject/src/mapping/Field.cpp",
+  "output": "/home/kirby/Programming/NebulaInject/build-inject/CMakeFiles/phantom.dir/src/mapping/Field.cpp.o"
+},
+{
+  "directory": "/home/kirby/Programming/NebulaInject/build-inject",
+  "command": "/usr/bin/c++ -Dphantom_EXPORTS -I/usr/lib/jvm/java-8-openjdk/include -I/usr/lib/jvm/java-8-openjdk/include/linux -I/home/kirby/Programming/NebulaInject/vendor/imgui -I/home/kirby/Programming/NebulaInject/src/mapping/impl -isystem /usr/include/SDL2 -g -std=gnu++23 -fPIC -g3 -ggdb -fno-omit-frame-pointer -fstack-protector-strong -Wall -Wextra -Wpedantic -Wformat-security -Wstack-protector -fstack-clash-protection -o CMakeFiles/phantom.dir/src/mapping/Klass.cpp.o -c /home/kirby/Programming/NebulaInject/src/mapping/Klass.cpp",
+  "file": "/home/kirby/Programming/NebulaInject/src/mapping/Klass.cpp",
+  "output": "/home/kirby/Programming/NebulaInject/build-inject/CMakeFiles/phantom.dir/src/mapping/Klass.cpp.o"
+},
+{
+  "directory": "/home/kirby/Programming/NebulaInject/build-inject",
+  "command": "/usr/bin/c++ -Dphantom_EXPORTS -I/usr/lib/jvm/java-8-openjdk/include -I/usr/lib/jvm/java-8-openjdk/include/linux -I/home/kirby/Programming/NebulaInject/vendor/imgui -I/home/kirby/Programming/NebulaInject/src/mapping/impl -isystem /usr/include/SDL2 -g -std=gnu++23 -fPIC -g3 -ggdb -fno-omit-frame-pointer -fstack-protector-strong -Wall -Wextra -Wpedantic -Wformat-security -Wstack-protector -fstack-clash-protection -o CMakeFiles/phantom.dir/src/mapping/Mapping.cpp.o -c /home/kirby/Programming/NebulaInject/src/mapping/Mapping.cpp",
+  "file": "/home/kirby/Programming/NebulaInject/src/mapping/Mapping.cpp",
+  "output": "/home/kirby/Programming/NebulaInject/build-inject/CMakeFiles/phantom.dir/src/mapping/Mapping.cpp.o"
+},
+{
+  "directory": "/home/kirby/Programming/NebulaInject/build-inject",
+  "command": "/usr/bin/c++ -Dphantom_EXPORTS -I/usr/lib/jvm/java-8-openjdk/include -I/usr/lib/jvm/java-8-openjdk/include/linux -I/home/kirby/Programming/NebulaInject/vendor/imgui -I/home/kirby/Programming/NebulaInject/src/mapping/impl -isystem /usr/include/SDL2 -g -std=gnu++23 -fPIC -g3 -ggdb -fno-omit-frame-pointer -fstack-protector-strong -Wall -Wextra -Wpedantic -Wformat-security -Wstack-protector -fstack-clash-protection -o CMakeFiles/phantom.dir/src/mapping/Method.cpp.o -c /home/kirby/Programming/NebulaInject/src/mapping/Method.cpp",
+  "file": "/home/kirby/Programming/NebulaInject/src/mapping/Method.cpp",
+  "output": "/home/kirby/Programming/NebulaInject/build-inject/CMakeFiles/phantom.dir/src/mapping/Method.cpp.o"
+},
+{
+  "directory": "/home/kirby/Programming/NebulaInject/build-inject",
+  "command": "/usr/bin/c++ -Dphantom_EXPORTS -I/usr/lib/jvm/java-8-openjdk/include -I/usr/lib/jvm/java-8-openjdk/include/linux -I/home/kirby/Programming/NebulaInject/vendor/imgui -I/home/kirby/Programming/NebulaInject/src/mapping/impl -isystem /usr/include/SDL2 -g -std=gnu++23 -fPIC -g3 -ggdb -fno-omit-frame-pointer -fstack-protector-strong -Wall -Wextra -Wpedantic -Wformat-security -Wstack-protector -fstack-clash-protection -o CMakeFiles/phantom.dir/src/mapping/impl/ActiveRenderInfo.cpp.o -c /home/kirby/Programming/NebulaInject/src/mapping/impl/ActiveRenderInfo.cpp",
+  "file": "/home/kirby/Programming/NebulaInject/src/mapping/impl/ActiveRenderInfo.cpp",
+  "output": "/home/kirby/Programming/NebulaInject/build-inject/CMakeFiles/phantom.dir/src/mapping/impl/ActiveRenderInfo.cpp.o"
+},
+{
+  "directory": "/home/kirby/Programming/NebulaInject/build-inject",
+  "command": "/usr/bin/c++ -Dphantom_EXPORTS -I/usr/lib/jvm/java-8-openjdk/include -I/usr/lib/jvm/java-8-openjdk/include/linux -I/home/kirby/Programming/NebulaInject/vendor/imgui -I/home/kirby/Programming/NebulaInject/src/mapping/impl -isystem /usr/include/SDL2 -g -std=gnu++23 -fPIC -g3 -ggdb -fno-omit-frame-pointer -fstack-protector-strong -Wall -Wextra -Wpedantic -Wformat-security -Wstack-protector -fstack-clash-protection -o CMakeFiles/phantom.dir/src/mapping/impl/EntityPlayerSP.cpp.o -c /home/kirby/Programming/NebulaInject/src/mapping/impl/EntityPlayerSP.cpp",
+  "file": "/home/kirby/Programming/NebulaInject/src/mapping/impl/EntityPlayerSP.cpp",
+  "output": "/home/kirby/Programming/NebulaInject/build-inject/CMakeFiles/phantom.dir/src/mapping/impl/EntityPlayerSP.cpp.o"
+},
+{
+  "directory": "/home/kirby/Programming/NebulaInject/build-inject",
+  "command": "/usr/bin/c++ -Dphantom_EXPORTS -I/usr/lib/jvm/java-8-openjdk/include -I/usr/lib/jvm/java-8-openjdk/include/linux -I/home/kirby/Programming/NebulaInject/vendor/imgui -I/home/kirby/Programming/NebulaInject/src/mapping/impl -isystem /usr/include/SDL2 -g -std=gnu++23 -fPIC -g3 -ggdb -fno-omit-frame-pointer -fstack-protector-strong -Wall -Wextra -Wpedantic -Wformat-security -Wstack-protector -fstack-clash-protection -o CMakeFiles/phantom.dir/src/mapping/impl/InventoryPlayer.cpp.o -c /home/kirby/Programming/NebulaInject/src/mapping/impl/InventoryPlayer.cpp",
+  "file": "/home/kirby/Programming/NebulaInject/src/mapping/impl/InventoryPlayer.cpp",
+  "output": "/home/kirby/Programming/NebulaInject/build-inject/CMakeFiles/phantom.dir/src/mapping/impl/InventoryPlayer.cpp.o"
+},
+{
+  "directory": "/home/kirby/Programming/NebulaInject/build-inject",
+  "command": "/usr/bin/c++ -Dphantom_EXPORTS -I/usr/lib/jvm/java-8-openjdk/include -I/usr/lib/jvm/java-8-openjdk/include/linux -I/home/kirby/Programming/NebulaInject/vendor/imgui -I/home/kirby/Programming/NebulaInject/src/mapping/impl -isystem /usr/include/SDL2 -g -std=gnu++23 -fPIC -g3 -ggdb -fno-omit-frame-pointer -fstack-protector-strong -Wall -Wextra -Wpedantic -Wformat-security -Wstack-protector -fstack-clash-protection -o CMakeFiles/phantom.dir/src/mapping/impl/Minecraft.cpp.o -c /home/kirby/Programming/NebulaInject/src/mapping/impl/Minecraft.cpp",
+  "file": "/home/kirby/Programming/NebulaInject/src/mapping/impl/Minecraft.cpp",
+  "output": "/home/kirby/Programming/NebulaInject/build-inject/CMakeFiles/phantom.dir/src/mapping/impl/Minecraft.cpp.o"
+},
+{
+  "directory": "/home/kirby/Programming/NebulaInject/build-inject",
+  "command": "/usr/bin/c++ -Dphantom_EXPORTS -I/usr/lib/jvm/java-8-openjdk/include -I/usr/lib/jvm/java-8-openjdk/include/linux -I/home/kirby/Programming/NebulaInject/vendor/imgui -I/home/kirby/Programming/NebulaInject/src/mapping/impl -isystem /usr/include/SDL2 -g -std=gnu++23 -fPIC -g3 -ggdb -fno-omit-frame-pointer -fstack-protector-strong -Wall -Wextra -Wpedantic -Wformat-security -Wstack-protector -fstack-clash-protection -o CMakeFiles/phantom.dir/src/mapping/impl/World.cpp.o -c /home/kirby/Programming/NebulaInject/src/mapping/impl/World.cpp",
+  "file": "/home/kirby/Programming/NebulaInject/src/mapping/impl/World.cpp",
+  "output": "/home/kirby/Programming/NebulaInject/build-inject/CMakeFiles/phantom.dir/src/mapping/impl/World.cpp.o"
+},
+{
+  "directory": "/home/kirby/Programming/NebulaInject/build-inject",
+  "command": "/usr/bin/c++ -Dphantom_EXPORTS -I/usr/lib/jvm/java-8-openjdk/include -I/usr/lib/jvm/java-8-openjdk/include/linux -I/home/kirby/Programming/NebulaInject/vendor/imgui -I/home/kirby/Programming/NebulaInject/src/mapping/impl -isystem /usr/include/SDL2 -g -std=gnu++23 -fPIC -g3 -ggdb -fno-omit-frame-pointer -fstack-protector-strong -Wall -Wextra -Wpedantic -Wformat-security -Wstack-protector -fstack-clash-protection -o CMakeFiles/phantom.dir/src/mapping/impl/java/io/JavaPrintStream.cpp.o -c /home/kirby/Programming/NebulaInject/src/mapping/impl/java/io/JavaPrintStream.cpp",
+  "file": "/home/kirby/Programming/NebulaInject/src/mapping/impl/java/io/JavaPrintStream.cpp",
+  "output": "/home/kirby/Programming/NebulaInject/build-inject/CMakeFiles/phantom.dir/src/mapping/impl/java/io/JavaPrintStream.cpp.o"
+},
+{
+  "directory": "/home/kirby/Programming/NebulaInject/build-inject",
+  "command": "/usr/bin/c++ -Dphantom_EXPORTS -I/usr/lib/jvm/java-8-openjdk/include -I/usr/lib/jvm/java-8-openjdk/include/linux -I/home/kirby/Programming/NebulaInject/vendor/imgui -I/home/kirby/Programming/NebulaInject/src/mapping/impl -isystem /usr/include/SDL2 -g -std=gnu++23 -fPIC -g3 -ggdb -fno-omit-frame-pointer -fstack-protector-strong -Wall -Wextra -Wpedantic -Wformat-security -Wstack-protector -fstack-clash-protection -o CMakeFiles/phantom.dir/src/mapping/impl/java/lang/JavaSystem.cpp.o -c /home/kirby/Programming/NebulaInject/src/mapping/impl/java/lang/JavaSystem.cpp",
+  "file": "/home/kirby/Programming/NebulaInject/src/mapping/impl/java/lang/JavaSystem.cpp",
+  "output": "/home/kirby/Programming/NebulaInject/build-inject/CMakeFiles/phantom.dir/src/mapping/impl/java/lang/JavaSystem.cpp.o"
+},
+{
+  "directory": "/home/kirby/Programming/NebulaInject/build-inject",
+  "command": "/usr/bin/c++ -Dphantom_EXPORTS -I/usr/lib/jvm/java-8-openjdk/include -I/usr/lib/jvm/java-8-openjdk/include/linux -I/home/kirby/Programming/NebulaInject/vendor/imgui -I/home/kirby/Programming/NebulaInject/src/mapping/impl -isystem /usr/include/SDL2 -g -std=gnu++23 -fPIC -g3 -ggdb -fno-omit-frame-pointer -fstack-protector-strong -Wall -Wextra -Wpedantic -Wformat-security -Wstack-protector -fstack-clash-protection -o CMakeFiles/phantom.dir/src/mapping/impl/java/util/JavaList.cpp.o -c /home/kirby/Programming/NebulaInject/src/mapping/impl/java/util/JavaList.cpp",
+  "file": "/home/kirby/Programming/NebulaInject/src/mapping/impl/java/util/JavaList.cpp",
+  "output": "/home/kirby/Programming/NebulaInject/build-inject/CMakeFiles/phantom.dir/src/mapping/impl/java/util/JavaList.cpp.o"
+},
+{
+  "directory": "/home/kirby/Programming/NebulaInject/build-inject",
+  "command": "/usr/bin/c++ -Dphantom_EXPORTS -I/usr/lib/jvm/java-8-openjdk/include -I/usr/lib/jvm/java-8-openjdk/include/linux -I/home/kirby/Programming/NebulaInject/vendor/imgui -I/home/kirby/Programming/NebulaInject/src/mapping/impl -isystem /usr/include/SDL2 -g -std=gnu++23 -fPIC -g3 -ggdb -fno-omit-frame-pointer -fstack-protector-strong -Wall -Wextra -Wpedantic -Wformat-security -Wstack-protector -fstack-clash-protection -o CMakeFiles/phantom.dir/src/mapping/impl/java/util/JavaSet.cpp.o -c /home/kirby/Programming/NebulaInject/src/mapping/impl/java/util/JavaSet.cpp",
+  "file": "/home/kirby/Programming/NebulaInject/src/mapping/impl/java/util/JavaSet.cpp",
+  "output": "/home/kirby/Programming/NebulaInject/build-inject/CMakeFiles/phantom.dir/src/mapping/impl/java/util/JavaSet.cpp.o"
+},
+{
+  "directory": "/home/kirby/Programming/NebulaInject/build-inject",
+  "command": "/usr/bin/c++ -Dphantom_EXPORTS -I/usr/lib/jvm/java-8-openjdk/include -I/usr/lib/jvm/java-8-openjdk/include/linux -I/home/kirby/Programming/NebulaInject/vendor/imgui -I/home/kirby/Programming/NebulaInject/src/mapping/impl -isystem /usr/include/SDL2 -g -std=gnu++23 -fPIC -g3 -ggdb -fno-omit-frame-pointer -fstack-protector-strong -Wall -Wextra -Wpedantic -Wformat-security -Wstack-protector -fstack-clash-protection -o CMakeFiles/phantom.dir/src/mapping/impl/org/lwjgl/input/Mouse.cpp.o -c /home/kirby/Programming/NebulaInject/src/mapping/impl/org/lwjgl/input/Mouse.cpp",
+  "file": "/home/kirby/Programming/NebulaInject/src/mapping/impl/org/lwjgl/input/Mouse.cpp",
+  "output": "/home/kirby/Programming/NebulaInject/build-inject/CMakeFiles/phantom.dir/src/mapping/impl/org/lwjgl/input/Mouse.cpp.o"
+},
+{
+  "directory": "/home/kirby/Programming/NebulaInject/build-inject",
+  "command": "/usr/bin/c++ -Dphantom_EXPORTS -I/usr/lib/jvm/java-8-openjdk/include -I/usr/lib/jvm/java-8-openjdk/include/linux -I/home/kirby/Programming/NebulaInject/vendor/imgui -I/home/kirby/Programming/NebulaInject/src/mapping/impl -isystem /usr/include/SDL2 -g -std=gnu++23 -fPIC -g3 -ggdb -fno-omit-frame-pointer -fstack-protector-strong -Wall -Wextra -Wpedantic -Wformat-security -Wstack-protector -fstack-clash-protection -o CMakeFiles/phantom.dir/src/ui/KeyManager.cpp.o -c /home/kirby/Programming/NebulaInject/src/ui/KeyManager.cpp",
+  "file": "/home/kirby/Programming/NebulaInject/src/ui/KeyManager.cpp",
+  "output": "/home/kirby/Programming/NebulaInject/build-inject/CMakeFiles/phantom.dir/src/ui/KeyManager.cpp.o"
+},
+{
+  "directory": "/home/kirby/Programming/NebulaInject/build-inject",
+  "command": "/usr/bin/c++ -Dphantom_EXPORTS -I/usr/lib/jvm/java-8-openjdk/include -I/usr/lib/jvm/java-8-openjdk/include/linux -I/home/kirby/Programming/NebulaInject/vendor/imgui -I/home/kirby/Programming/NebulaInject/src/mapping/impl -isystem /usr/include/SDL2 -g -std=gnu++23 -fPIC -g3 -ggdb -fno-omit-frame-pointer -fstack-protector-strong -Wall -Wextra -Wpedantic -Wformat-security -Wstack-protector -fstack-clash-protection -o CMakeFiles/phantom.dir/src/ui/PhantomWindow.cpp.o -c /home/kirby/Programming/NebulaInject/src/ui/PhantomWindow.cpp",
+  "file": "/home/kirby/Programming/NebulaInject/src/ui/PhantomWindow.cpp",
+  "output": "/home/kirby/Programming/NebulaInject/build-inject/CMakeFiles/phantom.dir/src/ui/PhantomWindow.cpp.o"
+},
+{
+  "directory": "/home/kirby/Programming/NebulaInject/build-inject",
+  "command": "/usr/bin/c++ -Dphantom_EXPORTS -I/usr/lib/jvm/java-8-openjdk/include -I/usr/lib/jvm/java-8-openjdk/include/linux -I/home/kirby/Programming/NebulaInject/vendor/imgui -I/home/kirby/Programming/NebulaInject/src/mapping/impl -isystem /usr/include/SDL2 -g -std=gnu++23 -fPIC -g3 -ggdb -fno-omit-frame-pointer -fstack-protector-strong -Wall -Wextra -Wpedantic -Wformat-security -Wstack-protector -fstack-clash-protection -o CMakeFiles/phantom.dir/src/utils/ImGuiUtils.cpp.o -c /home/kirby/Programming/NebulaInject/src/utils/ImGuiUtils.cpp",
+  "file": "/home/kirby/Programming/NebulaInject/src/utils/ImGuiUtils.cpp",
+  "output": "/home/kirby/Programming/NebulaInject/build-inject/CMakeFiles/phantom.dir/src/utils/ImGuiUtils.cpp.o"
+},
+{
+  "directory": "/home/kirby/Programming/NebulaInject/build-inject",
+  "command": "/usr/bin/c++ -Dphantom_EXPORTS -I/usr/lib/jvm/java-8-openjdk/include -I/usr/lib/jvm/java-8-openjdk/include/linux -I/home/kirby/Programming/NebulaInject/vendor/imgui -I/home/kirby/Programming/NebulaInject/src/mapping/impl -isystem /usr/include/SDL2 -g -std=gnu++23 -fPIC -g3 -ggdb -fno-omit-frame-pointer -fstack-protector-strong -Wall -Wextra -Wpedantic -Wformat-security -Wstack-protector -fstack-clash-protection -o CMakeFiles/phantom.dir/src/utils/JvmUtils.cpp.o -c /home/kirby/Programming/NebulaInject/src/utils/JvmUtils.cpp",
+  "file": "/home/kirby/Programming/NebulaInject/src/utils/JvmUtils.cpp",
+  "output": "/home/kirby/Programming/NebulaInject/build-inject/CMakeFiles/phantom.dir/src/utils/JvmUtils.cpp.o"
+},
+{
+  "directory": "/home/kirby/Programming/NebulaInject/build-inject",
+  "command": "/usr/bin/c++ -Dphantom_EXPORTS -I/usr/lib/jvm/java-8-openjdk/include -I/usr/lib/jvm/java-8-openjdk/include/linux -I/home/kirby/Programming/NebulaInject/vendor/imgui -I/home/kirby/Programming/NebulaInject/src/mapping/impl -isystem /usr/include/SDL2 -g -std=gnu++23 -fPIC -g3 -ggdb -fno-omit-frame-pointer -fstack-protector-strong -Wall -Wextra -Wpedantic -Wformat-security -Wstack-protector -fstack-clash-protection -o CMakeFiles/phantom.dir/src/utils/MSTimer.cpp.o -c /home/kirby/Programming/NebulaInject/src/utils/MSTimer.cpp",
+  "file": "/home/kirby/Programming/NebulaInject/src/utils/MSTimer.cpp",
+  "output": "/home/kirby/Programming/NebulaInject/build-inject/CMakeFiles/phantom.dir/src/utils/MSTimer.cpp.o"
+},
+{
+  "directory": "/home/kirby/Programming/NebulaInject/build-inject",
+  "command": "/usr/bin/c++ -Dphantom_EXPORTS -I/usr/lib/jvm/java-8-openjdk/include -I/usr/lib/jvm/java-8-openjdk/include/linux -I/home/kirby/Programming/NebulaInject/vendor/imgui -I/home/kirby/Programming/NebulaInject/src/mapping/impl -isystem /usr/include/SDL2 -g -std=gnu++23 -fPIC -g3 -ggdb -fno-omit-frame-pointer -fstack-protector-strong -Wall -Wextra -Wpedantic -Wformat-security -Wstack-protector -fstack-clash-protection -o CMakeFiles/phantom.dir/src/utils/MiscUtils.cpp.o -c /home/kirby/Programming/NebulaInject/src/utils/MiscUtils.cpp",
+  "file": "/home/kirby/Programming/NebulaInject/src/utils/MiscUtils.cpp",
+  "output": "/home/kirby/Programming/NebulaInject/build-inject/CMakeFiles/phantom.dir/src/utils/MiscUtils.cpp.o"
+},
+{
+  "directory": "/home/kirby/Programming/NebulaInject/build-inject",
+  "command": "/usr/bin/c++ -Dphantom_EXPORTS -I/usr/lib/jvm/java-8-openjdk/include -I/usr/lib/jvm/java-8-openjdk/include/linux -I/home/kirby/Programming/NebulaInject/vendor/imgui -I/home/kirby/Programming/NebulaInject/src/mapping/impl -isystem /usr/include/SDL2 -g -std=gnu++23 -fPIC -g3 -ggdb -fno-omit-frame-pointer -fstack-protector-strong -Wall -Wextra -Wpedantic -Wformat-security -Wstack-protector -fstack-clash-protection -o CMakeFiles/phantom.dir/src/utils/XUtils.cpp.o -c /home/kirby/Programming/NebulaInject/src/utils/XUtils.cpp",
+  "file": "/home/kirby/Programming/NebulaInject/src/utils/XUtils.cpp",
+  "output": "/home/kirby/Programming/NebulaInject/build-inject/CMakeFiles/phantom.dir/src/utils/XUtils.cpp.o"
+},
+{
+  "directory": "/home/kirby/Programming/NebulaInject/build-inject",
+  "command": "/usr/bin/c++ -Dphantom_EXPORTS -I/usr/lib/jvm/java-8-openjdk/include -I/usr/lib/jvm/java-8-openjdk/include/linux -I/home/kirby/Programming/NebulaInject/vendor/imgui -I/home/kirby/Programming/NebulaInject/src/mapping/impl -isystem /usr/include/SDL2 -g -std=gnu++23 -fPIC -g3 -ggdb -fno-omit-frame-pointer -fstack-protector-strong -Wall -Wextra -Wpedantic -Wformat-security -Wstack-protector -fstack-clash-protection -o CMakeFiles/phantom.dir/vendor/imgui/imgui.cpp.o -c /home/kirby/Programming/NebulaInject/vendor/imgui/imgui.cpp",
+  "file": "/home/kirby/Programming/NebulaInject/vendor/imgui/imgui.cpp",
+  "output": "/home/kirby/Programming/NebulaInject/build-inject/CMakeFiles/phantom.dir/vendor/imgui/imgui.cpp.o"
+},
+{
+  "directory": "/home/kirby/Programming/NebulaInject/build-inject",
+  "command": "/usr/bin/c++ -Dphantom_EXPORTS -I/usr/lib/jvm/java-8-openjdk/include -I/usr/lib/jvm/java-8-openjdk/include/linux -I/home/kirby/Programming/NebulaInject/vendor/imgui -I/home/kirby/Programming/NebulaInject/src/mapping/impl -isystem /usr/include/SDL2 -g -std=gnu++23 -fPIC -g3 -ggdb -fno-omit-frame-pointer -fstack-protector-strong -Wall -Wextra -Wpedantic -Wformat-security -Wstack-protector -fstack-clash-protection -o CMakeFiles/phantom.dir/vendor/imgui/imgui_impl_opengl3.cpp.o -c /home/kirby/Programming/NebulaInject/vendor/imgui/imgui_impl_opengl3.cpp",
+  "file": "/home/kirby/Programming/NebulaInject/vendor/imgui/imgui_impl_opengl3.cpp",
+  "output": "/home/kirby/Programming/NebulaInject/build-inject/CMakeFiles/phantom.dir/vendor/imgui/imgui_impl_opengl3.cpp.o"
+},
+{
+  "directory": "/home/kirby/Programming/NebulaInject/build-inject",
+  "command": "/usr/bin/c++ -Dphantom_EXPORTS -I/usr/lib/jvm/java-8-openjdk/include -I/usr/lib/jvm/java-8-openjdk/include/linux -I/home/kirby/Programming/NebulaInject/vendor/imgui -I/home/kirby/Programming/NebulaInject/src/mapping/impl -isystem /usr/include/SDL2 -g -std=gnu++23 -fPIC -g3 -ggdb -fno-omit-frame-pointer -fstack-protector-strong -Wall -Wextra -Wpedantic -Wformat-security -Wstack-protector -fstack-clash-protection -o CMakeFiles/phantom.dir/vendor/imgui/imgui_impl_sdl.cpp.o -c /home/kirby/Programming/NebulaInject/vendor/imgui/imgui_impl_sdl.cpp",
+  "file": "/home/kirby/Programming/NebulaInject/vendor/imgui/imgui_impl_sdl.cpp",
+  "output": "/home/kirby/Programming/NebulaInject/build-inject/CMakeFiles/phantom.dir/vendor/imgui/imgui_impl_sdl.cpp.o"
+},
+{
+  "directory": "/home/kirby/Programming/NebulaInject/build-inject",
+  "command": "/usr/bin/c++ -Dphantom_EXPORTS -I/usr/lib/jvm/java-8-openjdk/include -I/usr/lib/jvm/java-8-openjdk/include/linux -I/home/kirby/Programming/NebulaInject/vendor/imgui -I/home/kirby/Programming/NebulaInject/src/mapping/impl -isystem /usr/include/SDL2 -g -std=gnu++23 -fPIC -g3 -ggdb -fno-omit-frame-pointer -fstack-protector-strong -Wall -Wextra -Wpedantic -Wformat-security -Wstack-protector -fstack-clash-protection -o CMakeFiles/phantom.dir/vendor/imgui/imgui_draw.cpp.o -c /home/kirby/Programming/NebulaInject/vendor/imgui/imgui_draw.cpp",
+  "file": "/home/kirby/Programming/NebulaInject/vendor/imgui/imgui_draw.cpp",
+  "output": "/home/kirby/Programming/NebulaInject/build-inject/CMakeFiles/phantom.dir/vendor/imgui/imgui_draw.cpp.o"
+},
+{
+  "directory": "/home/kirby/Programming/NebulaInject/build-inject",
+  "command": "/usr/bin/c++ -Dphantom_EXPORTS -I/usr/lib/jvm/java-8-openjdk/include -I/usr/lib/jvm/java-8-openjdk/include/linux -I/home/kirby/Programming/NebulaInject/vendor/imgui -I/home/kirby/Programming/NebulaInject/src/mapping/impl -isystem /usr/include/SDL2 -g -std=gnu++23 -fPIC -g3 -ggdb -fno-omit-frame-pointer -fstack-protector-strong -Wall -Wextra -Wpedantic -Wformat-security -Wstack-protector -fstack-clash-protection -o CMakeFiles/phantom.dir/vendor/imgui/imgui_tables.cpp.o -c /home/kirby/Programming/NebulaInject/vendor/imgui/imgui_tables.cpp",
+  "file": "/home/kirby/Programming/NebulaInject/vendor/imgui/imgui_tables.cpp",
+  "output": "/home/kirby/Programming/NebulaInject/build-inject/CMakeFiles/phantom.dir/vendor/imgui/imgui_tables.cpp.o"
+},
+{
+  "directory": "/home/kirby/Programming/NebulaInject/build-inject",
+  "command": "/usr/bin/c++ -Dphantom_EXPORTS -I/usr/lib/jvm/java-8-openjdk/include -I/usr/lib/jvm/java-8-openjdk/include/linux -I/home/kirby/Programming/NebulaInject/vendor/imgui -I/home/kirby/Programming/NebulaInject/src/mapping/impl -isystem /usr/include/SDL2 -g -std=gnu++23 -fPIC -g3 -ggdb -fno-omit-frame-pointer -fstack-protector-strong -Wall -Wextra -Wpedantic -Wformat-security -Wstack-protector -fstack-clash-protection -o CMakeFiles/phantom.dir/vendor/imgui/imgui_widgets.cpp.o -c /home/kirby/Programming/NebulaInject/vendor/imgui/imgui_widgets.cpp",
+  "file": "/home/kirby/Programming/NebulaInject/vendor/imgui/imgui_widgets.cpp",
+  "output": "/home/kirby/Programming/NebulaInject/build-inject/CMakeFiles/phantom.dir/vendor/imgui/imgui_widgets.cpp.o"
+},
+{
+  "directory": "/home/kirby/Programming/NebulaInject/build-inject",
+  "command": "/usr/bin/c++ -Dphantom_EXPORTS -I/usr/lib/jvm/java-8-openjdk/include -I/usr/lib/jvm/java-8-openjdk/include/linux -I/home/kirby/Programming/NebulaInject/vendor/imgui -I/home/kirby/Programming/NebulaInject/src/mapping/impl -isystem /usr/include/SDL2 -g -std=gnu++23 -fPIC -g3 -ggdb -fno-omit-frame-pointer -fstack-protector-strong -Wall -Wextra -Wpedantic -Wformat-security -Wstack-protector -fstack-clash-protection -o CMakeFiles/phantom.dir/vendor/imgui/imgui_demo.cpp.o -c /home/kirby/Programming/NebulaInject/vendor/imgui/imgui_demo.cpp",
+  "file": "/home/kirby/Programming/NebulaInject/vendor/imgui/imgui_demo.cpp",
+  "output": "/home/kirby/Programming/NebulaInject/build-inject/CMakeFiles/phantom.dir/vendor/imgui/imgui_demo.cpp.o"
+}
+]

@@ -1,6 +1,9 @@
 // NebulaWindow.cpp — patched for theme system, fonts and ImGui backend
 // correctness
+#include <GL/glew.h>  
 #include "PhantomWindow.h"
+
+
 #include "../utils/ImGuiUtils.h"
 #include "../utils/XUtils.h"
 #include "NebulaFontLoader.h"
@@ -9,8 +12,11 @@
 #include <imgui_impl_opengl3.h>
 #include <imgui_impl_sdl.h>
 #include <string>
+
+#include <thread>
 #include <vector>
 
+static bool showDemo = false;
 // Constants for UI layout
 static constexpr float SIDEBAR_WIDTH = 160.0f;
 static constexpr float SETTINGS_WIDTH = 540.0f;
@@ -48,10 +54,10 @@ static void AlignForWidth(float width, float alignment = 0.5f) {
     ImGui::SetCursorPosX(ImGui::GetCursorPosX() + off);
 }
 
+
 void NebulaWindow::setup() {
   // Setup SDL
-  if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER | SDL_INIT_GAMECONTROLLER) !=
-      0) {
+  if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER | SDL_INIT_GAMECONTROLLER) != 0) {
     printf("Error: %s\n", SDL_GetError());
     exit(1);
   }
@@ -67,12 +73,9 @@ void NebulaWindow::setup() {
   SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
   SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
   SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
-  auto window_flags =
-      (SDL_WindowFlags)(SDL_WINDOW_OPENGL | SDL_WINDOW_ALLOW_HIGHDPI);
+  auto window_flags = (SDL_WindowFlags)(SDL_WINDOW_OPENGL | SDL_WINDOW_ALLOW_HIGHDPI);
 
-  window =
-      SDL_CreateWindow(title, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-                       width, height, window_flags);
+  window = SDL_CreateWindow(title, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, window_flags);
   if (!window) {
     printf("Error creating window: %s\n", SDL_GetError());
     SDL_Quit();
@@ -90,26 +93,43 @@ void NebulaWindow::setup() {
   SDL_GL_MakeCurrent(window, glContext);
   SDL_GL_SetSwapInterval(1); // Enable vsync
 
-  // 1) Create ImGui context
+  // --- ADDED: Initialize GL loader (GLEW) ---
+  GLenum glewErr = glewInit(); // <<< ADDED (requires linking GLEW)
+  if (glewErr != GLEW_OK) {
+    fprintf(stderr, "Warning: glewInit() failed: %s\n", glewGetErrorString(glewErr));
+    // continue: on some systems functions are available anyway
+  } else {
+    printf("GLEW initialized: %s\n", glewGetString(GLEW_VERSION));
+  } // <<< ADDED
+
+  printf("GL vendor: %s\n", glGetString(GL_VENDOR));
+  printf("GL renderer: %s\n", glGetString(GL_RENDERER));
+  printf("GL version: %s\n", glGetString(GL_VERSION));
+
+  // Setup ImGui context
   IMGUI_CHECKVERSION();
   ImGui::CreateContext();
   ImGuiIO &io = ImGui::GetIO();
   (void)io;
 
-  // 2) Initialize Platform/Renderer backends
-  ImGui_ImplSDL2_InitForOpenGL(window, glContext);
+  // enable keyboard/nav if you want
+  io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+
+  // Initialize Platform/Renderer backends
+  if (!ImGui_ImplSDL2_InitForOpenGL(window, glContext)) {
+    fprintf(stderr, "ImGui_ImplSDL2_InitForOpenGL failed\n");
+  }
   ImGui_ImplOpenGL3_Init(glsl_version);
 
-  // 3) Load fonts
+  // Load fonts (your font loader). Keep this.
   NebulaFontLoader::loadFonts();
 
-  // 4) Create font texture
+  // Create font texture (ensure fonts were added before calling)
   ImGui_ImplOpenGL3_CreateFontsTexture();
 
-  // 5) Apply initial theme (Nebula)
+  // Setup style
   ImGuiUtils::styleColorsNebula();
 
-  // Global style tuning
   ImGuiStyle &styleRef = ImGui::GetStyle();
   styleRef.WindowRounding = 12.0f;
   styleRef.FrameRounding = 8.0f;
@@ -117,11 +137,18 @@ void NebulaWindow::setup() {
   styleRef.ScrollbarRounding = 10.0f;
   styleRef.GrabRounding = 8.0f;
   styleRef.TabRounding = 8.0f;
-
   styleRef.WindowPadding = ImVec2(10, 10);
   styleRef.FramePadding = ImVec2(12, 6);
   styleRef.ItemSpacing = ImVec2(10, 8);
   styleRef.ItemInnerSpacing = ImVec2(8, 6);
+
+  // --- ADDED: enable blending (required by ImGui) ---
+  glEnable(GL_BLEND); // <<< ADDED
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); // <<< ADDED
+
+  // optional: enable vsync already set
+  // optional debug flag: show demo by default so you know it works
+  showDemo = true; // <<< ADDED: global bool
 }
 
 // Global state variables
@@ -136,18 +163,19 @@ void NebulaWindow::update(const std::vector<Cheat *> &cheats, bool &running,
   SDL_Event event;
   while (SDL_PollEvent(&event)) {
     ImGui_ImplSDL2_ProcessEvent(&event);
-    if (event.type == SDL_QUIT)
-      running = false;
+    if (event.type == SDL_QUIT) running = false;
     if (event.type == SDL_WINDOWEVENT &&
         event.window.event == SDL_WINDOWEVENT_CLOSE &&
-        event.window.windowID == SDL_GetWindowID(window))
-      running = false;
+        event.window.windowID == SDL_GetWindowID(window)) running = false;
   }
 
   // Start the Dear ImGui frame
   ImGui_ImplSDL2_NewFrame(window);
   ImGui_ImplOpenGL3_NewFrame();
   ImGui::NewFrame();
+
+  // DEBUG: always show ImGui demo until verified
+  if (showDemo) ImGui::ShowDemoWindow(&showDemo); // <<< ADDED
 
   // Draw widgets with Nebula styling
   {
@@ -378,9 +406,12 @@ void NebulaWindow::update(const std::vector<Cheat *> &cheats, bool &running,
     ImGui::End();
   }
 
-  // Render
   ImGui::Render();
-  glViewport(0, 0, (int)io.DisplaySize.x, (int)io.DisplaySize.y);
+
+  // Use drawable size for HiDPI correctness
+  int fb_w = 0, fb_h = 0;
+  SDL_GL_GetDrawableSize(window, &fb_w, &fb_h); // <<< ADDED
+  glViewport(0, 0, fb_w, fb_h);                // <<< ADDED
 
   // Gentle background
   ImVec4 bg = ImGuiUtils::getPalette().Bg;
@@ -389,7 +420,11 @@ void NebulaWindow::update(const std::vector<Cheat *> &cheats, bool &running,
 
   ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
   SDL_GL_SwapWindow(window);
+
+  // tiny sleep so we don't eat 100% CPU in tests
+  std::this_thread::sleep_for(std::chrono::milliseconds(4));
 }
+
 
 void NebulaWindow::destruct() {
   // Cleanup
@@ -397,7 +432,14 @@ void NebulaWindow::destruct() {
   ImGui_ImplSDL2_Shutdown();
   ImGui::DestroyContext();
 
-  SDL_GL_DeleteContext(glContext);
-  SDL_DestroyWindow(window);
+  if (glContext) {
+    SDL_GL_DeleteContext(glContext);
+    glContext = nullptr;
+  }
+  if (window) {
+    SDL_DestroyWindow(window);
+    window = nullptr;
+  }
   SDL_Quit();
 }
+

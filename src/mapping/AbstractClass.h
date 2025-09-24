@@ -305,19 +305,34 @@ protected:
   // be defined. "name" : Clear-text name used by 'Mapping.h' to define the
   // field. Return: JNI field wrapper
 
-  jfieldID getFieldID(const char *name) {
-    CM *cm = Mapping::getClass(clsKey);
+ 
+
+
+jfieldID getFieldID(const char* name) {
+    CM* cm = Mapping::getClass(clsKey);
+    if (!cm) {
+        std::cerr << "[getFieldID] Mapping::getClass failed for " << clsKey << "\n";
+        return nullptr;
+    }
+
+    if (cm->fields.empty()) {
+        std::cerr << "[getFieldID] Fields map is empty for class: " << clsKey << "\n";
+        return nullptr;
+    }
 
     auto it = cm->fields.find(std::string(name));
     if (it == cm->fields.end()) {
-      // Field not found, handle gracefully
-      // Could throw, log, or return a null/invalid jfieldID
-      return nullptr;
+        std::cerr << "[getFieldID] Field not found: " << name
+                  << " in class " << clsKey << "\n";
+        return nullptr;
     }
 
-    Mem &field = it->second;
+    Mem& field = it->second;
     return getFieldID(field.name, field.desc, field.isStatic);
-  }
+}
+
+
+
 
   // Method getter that uses the mapping class so only a clear-text name needs
   // to be defined. "name" : Clear-text name used by 'Mapping.h' to define the

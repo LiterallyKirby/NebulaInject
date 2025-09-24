@@ -1,5 +1,4 @@
-#ifndef PHANTOM_MAPPING_H
-#define PHANTOM_MAPPING_H
+#pragma once
 
 #include <map>
 #include <string>
@@ -8,6 +7,7 @@
 #include <iostream>
 #include "CM.h"
 
+extern std::mutex lookup_mutex;  // declare
 enum GameVersions {
     CASUAL_1_7_10,
     CASUAL_1_8,
@@ -18,23 +18,28 @@ enum GameVersions {
     LUNAR_1_8
 };
 
+extern GameVersions g_GameVersion;
+enum class MappingType {
+    Classic = 1,
+    ClassType,
+    MethodType
+};
+
 // Global lookup map and mutex
 extern std::map<std::string, std::shared_ptr<CM>> lookup;
 extern std::mutex lookup_mutex;
 
 class Mapping {
 public:
-    // Existing functions
-    static void Initialize(const GameVersions version);
-    static std::string Get(const char* mapping, int type = 1);
+    // Initialization
+    static void Initialize(GameVersions version);
+
+    // Classic mapping retrieval
+   static std::string		Get(const char* mapping, int type = 1);
+
+    // CM class access
     static CM* getClass(const char* key);
     static const char* getClassName(const char* key);
-    
-    // New CM-based helper functions
-    static std::string getFieldName(const char* className, const char* fieldName);
-    static std::string getMethodName(const char* className, const char* methodName);
-    static std::string getFieldDesc(const char* className, const char* fieldName);
-    static std::string getMethodDesc(const char* className, const char* methodName);
-};
 
-#endif //PHANTOM_MAPPING_H
+
+};

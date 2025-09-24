@@ -3,9 +3,9 @@
 //
 #include "Phantom.h"
 
-#include <net/minecraft/client/Minecraft.h>
-#include <net/minecraft/client/multiplayer/WorldClient.h>
-#include <net/minecraft/entity/EntityPlayerSP.h>
+#include <EntityPlayerSP.h>
+#include <Minecraft.h>
+#include <World.h>
 
 #include <fstream>
 #include <string>
@@ -28,15 +28,6 @@
 #include <unordered_map>
 
 #include "cheats/AutoClicker.h"
-#include "cheats/AutoSprint.h"
-#include "cheats/Clip.h"
-#include "cheats/ESP.h"
-#include "cheats/FastPlace.h"
-#include "cheats/NoHitDelay.h"
-#include "cheats/Reach.h"
-#include "cheats/ReachInput.h"
-#include "cheats/STap.h"
-#include "cheats/Velocity.h"
 #include "ui/KeyManager.h"
 #include "ui/PhantomWindow.h"
 
@@ -77,33 +68,67 @@ std::string GetMinecraftWindowTitle() {
     return title;
 }
 
+std::string GameVersionToString(GameVersions version) {
+    switch (version) {
+        case LUNAR_1_7_10:
+            return "LUNAR_1_7_10";
+        case LUNAR_1_8:
+            return "LUNAR_1_8";
+        case FORGE_1_7_10:
+            return "FORGE_1_7_10";
+        case FORGE_1_8:
+            return "FORGE_1_8";
+        case CASUAL_1_7_10:
+            return "CASUAL_1_7_10";
+        case CASUAL_1_8:
+            return "CASUAL_1_8";
+        case FEATHER_1_8:
+            return "FEATHER_1_8";
+        default:
+            return "UNKNOWN";
+    }
+}
+
 GameVersions Phantom::DetectGameVersion() {
     std::string title = GetMinecraftWindowTitle();
+    std::cout << "Title: " << title << std::endl;
+
     bool is1_7 = title.find("1.7.10") != std::string::npos;
-
-    if (title.find("Lunar Client") != std::string::npos)
+    if (title.find("Lunar Client") != std::string::npos) {
+        std::cout << "Detected Lunar Client" << std::endl;
         return is1_7 ? LUNAR_1_7_10 : LUNAR_1_8;
-
-    bool vanillaMappings = title.find("Badlion Minecraft") != std::string::npos;
-
-    CM *cm = Mapping::getClass("net/minecraft/launchwrapper/LaunchClassLoader");
-    if (!cm) {
-        std::cerr << "Failed to get mapping for LaunchClassLoader" << std::endl;
-        return CASUAL_1_8;  // fallback
     }
 
+    bool vanillaMappings = title.find("Badlion Minecraft") != std::string::npos;
+    std::cout << "vanillaMappings: " << vanillaMappings << std::endl;
+
+    CM *cm = Mapping::getClass("net/minecraft/launchwrapper/LaunchClassLoader");
+    std::cout << "cm: " << (cm ? "FOUND" : "NOT FOUND") << std::endl;
+    if (!cm) return CASUAL_1_8;
+
     CM *cm2 = Mapping::getClass("net/minecraft/launchwrapper/Launch");
+    std::cout << "cm2: " << (cm2 ? "FOUND" : "NOT FOUND") << std::endl;
+    if (!cm2) return CASUAL_1_8;
+
     jclass launchClazz = env->FindClass(cm2->name);
+    std::cout << "launchClazz: " << (launchClazz ? "FOUND" : "NOT FOUND")
+              << std::endl;
 
     if (cm && launchClazz && !vanillaMappings) {
+        std::cout << "Detected Forge" << std::endl;
         return is1_7 ? FORGE_1_7_10 : FORGE_1_8;
     }
 
-    if (Mapping::getClass("net/digitalingot/featheropt/FeatherCoreMod"))
+    if (Mapping::getClass("net/digitalingot/featheropt/FeatherCoreMod")) {
+        std::cout << "Detected Feather Mod" << std::endl;
         return FEATHER_1_8;
+    }
 
+    std::cout << "Fallback to casual" << std::endl;
     return is1_7 ? CASUAL_1_7_10 : CASUAL_1_8;
 }
+
+GameVersions g_GameVersion = CASUAL_1_7_10;
 
 Phantom::Phantom() {
     running = false;
@@ -111,62 +136,138 @@ Phantom::Phantom() {
     env = nullptr;
 
     jsize count;
-    if (JNI_GetCreatedJavaVMs(&jvm, 1, &count) != JNI_OK || count == 0) return;
+    if (JNI_GetCreatedJavaVMs(&jvm, 1, &count) != JNI_OK || count == 0) {
+        std::cerr << "Failed to get JVM" << std::endl;
+        return;
+    }
 
     jint res = jvm->GetEnv((void **)&env, JNI_VERSION_1_8);
     if (res == JNI_EDETACHED)
         res = jvm->AttachCurrentThread((void **)&env, nullptr);
-    if (res != JNI_OK) return;
+    if (res != JNI_OK) {
+        std::cerr << "Failed to attach to JVM: " << res << std::endl;
+        return;
+    }
 
-    GameVersions version = DetectGameVersion();
-    Mapping::Initialize(version);
+    Mapping::Initialize(CASUAL_1_8);  // load some default mappings first
+    g_GameVersion = DetectGameVersion();
+    Mapping::Initialize(g_GameVersion);
 
     cheats.push_back(new AutoClicker());
-    cheats.push_back(new ESP(this));
-    cheats.push_back(new AutoSprint());
-    cheats.push_back(new NoHitDelay());
-
-    cheats.push_back(new Velocity(this));
-    Reach *reachCheat = new Reach(this);
-    cheats.push_back(reachCheat);
-    cheats.push_back(new ReachInput(reachCheat));
-    cheats.push_back(new FastPlace());
-
-    cheats.push_back(new STap(this));
+    std::cout << "Phantom initialized successfully" << std::endl;
 }
 
 void Phantom::runClient() {
     running = true;
+    std::cout << "Starting client..." << std::endl;
 
     auto *mc = new Minecraft(this);
     auto *window = new NebulaWindow(700, 500, "Phantom");
     window->setup();
     auto *keyManager = new KeyManager();
 
+    int loopCount = 0;
     while (running) {
-        EntityPlayerSP player = mc->getPlayerContainer();
-        WorldClient world = mc->getWorldContainer();
-        if (!player.getEntityPlayerSP() || !world.getWorld()) {
-            window->update(cheats, running, false);
+        try {
+            // Check JNI environment is still valid
+            if (!env || !jvm) {
+                std::cerr << "JNI environment became invalid" << std::endl;
+                break;
+            }
 
-            continue;
-        }
+            // Clear any pending JNI exceptions
+            if (env->ExceptionCheck()) {
+                std::cerr << "Clearing pending JNI exception" << std::endl;
+                env->ExceptionDescribe();
+                env->ExceptionClear();
+            }
 
-        std::thread(callUpdateKeys, keyManager, this).detach();
-        for (Cheat *cheat : cheats) {
-            if (cheat->enabled)
-                cheat->run(mc);
-            else
-                cheat->reset(mc);
+            // Get player object
+            jobject playerObj = mc->GetThePlayer(env);
+            bool hasPlayer = (playerObj != nullptr);
+
+            // Get world object
+            jobject worldObj = mc->GetTheWorld(env);
+            bool hasWorld = (worldObj != nullptr);
+
+            bool inGame = hasPlayer && hasWorld;
+
+            // DEBUG OUTPUT - This will help us see what's happening
+            if (loopCount % 100 == 0) {
+                std::cout << "DEBUG - Loop: " << loopCount << std::endl;
+                std::cout << "  Player object: "
+                          << (hasPlayer ? "EXISTS" : "NULL") << std::endl;
+                std::cout << "  World object: "
+                          << (hasWorld ? "EXISTS" : "NULL") << std::endl;
+                std::cout << "  InGame status: " << (inGame ? "TRUE" : "FALSE")
+                          << std::endl;
+                std::cout << "  Cheats count: " << cheats.size() << std::endl;
+                std::cout << "Detected game version: "
+                          << GameVersionToString(g_GameVersion) << std::endl;
+            }
+
+            if (!inGame) {
+                // Pass false to indicate not in game
+                window->update(cheats, running, false);
+
+                // Clean up any valid references
+                if (playerObj) env->DeleteLocalRef(playerObj);
+                if (worldObj) env->DeleteLocalRef(worldObj);
+
+                loopCount++;
+                std::this_thread::sleep_for(std::chrono::milliseconds(10));
+                continue;
+            }
+
+            // We have both player and world - modules can run
+            if (loopCount % 200 == 0 || loopCount < 5) {
+                std::cout
+                    << "MODULES SHOULD BE ACTIVE - Player and world found!"
+                    << std::endl;
+            }
+
+            // Handle key updates in main thread (safer than detached thread)
+            keyManager->updateKeys(this);
+
+            // Run enabled cheats/modules
+            for (Cheat *cheat : cheats) {
+                try {
+                    if (cheat->enabled) {
+                        cheat->run(mc);
+                    } else {
+                        cheat->reset(mc);
+                    }
+                } catch (const std::exception &e) {
+                    std::cerr << "Exception in cheat execution: " << e.what()
+                              << std::endl;
+                }
+            }
+
+            // Update UI with inGame = true
+            window->update(cheats, running, true);
+
+            // Clean up local references
+            if (playerObj) env->DeleteLocalRef(playerObj);
+            if (worldObj) env->DeleteLocalRef(worldObj);
+
+            loopCount++;
+
+            // Small delay to prevent excessive CPU usage
+            std::this_thread::sleep_for(std::chrono::milliseconds(1));
+
+        } catch (const std::exception &e) {
+            std::cerr << "Exception in main loop: " << e.what() << std::endl;
+            // Continue running despite exceptions
         }
-        window->update(cheats, running, true);
     }
 
+    std::cout << "Stopping client..." << std::endl;
     window->destruct();
     jvm->DetachCurrentThread();
     delete mc;
     delete window;
     delete keyManager;
+    std::cout << "Client stopped." << std::endl;
 }
 
 void Phantom::onKey(int key) {
@@ -181,6 +282,8 @@ void Phantom::onKey(int key) {
     for (Cheat *cheat : cheats) {
         if (cheat->bind == key) {
             cheat->enabled = !cheat->enabled;
+            std::cout << "Toggled cheat: " << cheat->name << " -> "
+                      << (cheat->enabled ? "ON" : "OFF") << std::endl;
         }
     }
 }
