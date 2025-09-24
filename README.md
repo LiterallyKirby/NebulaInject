@@ -1,4 +1,4 @@
----
+
 
 # Nebula
 
@@ -6,7 +6,7 @@
 
 Nebula is a C++ Minecraft injection client for Linux, inspired by the Phantom project. It enables advanced users to modify Minecraft through injection, with future plans for a standalone, modern injector and Windows support.
 
----
+
 
 ## Table of Contents
 
