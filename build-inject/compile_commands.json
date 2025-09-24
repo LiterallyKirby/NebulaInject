@@ -25,6 +25,12 @@
 },
 {
   "directory": "/home/kirby/Programming/NebulaInject/build-inject",
+  "command": "/usr/bin/c++ -Dphantom_EXPORTS -I/usr/lib/jvm/java-8-openjdk/include -I/usr/lib/jvm/java-8-openjdk/include/linux -I/home/kirby/Programming/NebulaInject/vendor/imgui -I/home/kirby/Programming/NebulaInject/src/mapping/impl -isystem /usr/include/SDL2 -g -std=gnu++23 -fPIC -g3 -ggdb -fno-omit-frame-pointer -fstack-protector-strong -Wall -Wextra -Wpedantic -Wformat-security -Wstack-protector -fstack-clash-protection -o CMakeFiles/phantom.dir/src/cheats/Reach.cpp.o -c /home/kirby/Programming/NebulaInject/src/cheats/Reach.cpp",
+  "file": "/home/kirby/Programming/NebulaInject/src/cheats/Reach.cpp",
+  "output": "/home/kirby/Programming/NebulaInject/build-inject/CMakeFiles/phantom.dir/src/cheats/Reach.cpp.o"
+},
+{
+  "directory": "/home/kirby/Programming/NebulaInject/build-inject",
   "command": "/usr/bin/c++ -Dphantom_EXPORTS -I/usr/lib/jvm/java-8-openjdk/include -I/usr/lib/jvm/java-8-openjdk/include/linux -I/home/kirby/Programming/NebulaInject/vendor/imgui -I/home/kirby/Programming/NebulaInject/src/mapping/impl -isystem /usr/include/SDL2 -g -std=gnu++23 -fPIC -g3 -ggdb -fno-omit-frame-pointer -fstack-protector-strong -Wall -Wextra -Wpedantic -Wformat-security -Wstack-protector -fstack-clash-protection -o CMakeFiles/phantom.dir/src/cheats/Velocity.cpp.o -c /home/kirby/Programming/NebulaInject/src/cheats/Velocity.cpp",
   "file": "/home/kirby/Programming/NebulaInject/src/cheats/Velocity.cpp",
   "output": "/home/kirby/Programming/NebulaInject/build-inject/CMakeFiles/phantom.dir/src/cheats/Velocity.cpp.o"

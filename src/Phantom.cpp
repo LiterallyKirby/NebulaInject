@@ -29,6 +29,7 @@
 
 #include "cheats/AutoClicker.h"
 #include "cheats/Velocity.h"
+#include "cheats/Reach.h"
 
 
 #include "ui/KeyManager.h"
@@ -158,6 +159,7 @@ Phantom::Phantom() {
 
     cheats.push_back(new AutoClicker());
 cheats.push_back(new VelocityModule());
+	cheats.push_back(new ReachModule(this));
     std::cout << "Phantom initialized successfully" << std::endl;
 }
 
