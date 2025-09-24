@@ -1,0 +1,3 @@
+/home/kirby/Programming/NebulaInject/build-gdb/CMakeFiles/phantom.dir
+/home/kirby/Programming/NebulaInject/build-gdb/CMakeFiles/edit_cache.dir
+/home/kirby/Programming/NebulaInject/build-gdb/CMakeFiles/rebuild_cache.dir

@@ -1,0 +1,7 @@
+{
+	"InstallScripts" : 
+	[
+		"/home/kirby/Programming/NebulaInject/build-gdb/cmake_install.cmake"
+	],
+	"Parallel" : false
+}

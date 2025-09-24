@@ -14,12 +14,21 @@ class Cheat;
 class Phantom {
 public:
     Phantom();
- JavaVM *jvm;
+
     JNIEnv *env;
 GameVersions DetectGameVersion(); // Add this
     void runClient();
     void onKey(int key);
 
+JavaVM* jvm = nullptr;
+
+JavaVM* getJVM() const {
+    return jvm;
+}
+
+void setJVM(JavaVM* vm) {
+    jvm = vm;
+}
     JavaVM *getJvm();
     JNIEnv *getEnv();
     void setRunning(bool p_running);

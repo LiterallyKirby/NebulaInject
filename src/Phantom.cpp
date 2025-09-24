@@ -28,10 +28,8 @@
 #include <unordered_map>
 
 #include "cheats/AutoClicker.h"
-#include "cheats/Velocity.h"
 #include "cheats/Reach.h"
-
-
+#include "cheats/Velocity.h"
 #include "ui/KeyManager.h"
 #include "ui/PhantomWindow.h"
 
@@ -158,10 +156,12 @@ Phantom::Phantom() {
     Mapping::Initialize(g_GameVersion);
 
     cheats.push_back(new AutoClicker());
-cheats.push_back(new VelocityModule());
-	cheats.push_back(new ReachModule(this));
+    cheats.push_back(new VelocityModule());
+    cheats.push_back(new ReachModule(this));
     std::cout << "Phantom initialized successfully" << std::endl;
 }
+
+
 
 void Phantom::runClient() {
     running = true;
@@ -198,7 +198,7 @@ void Phantom::runClient() {
 
             bool inGame = hasPlayer && hasWorld;
 
-            // DEBUG OUTPUT - This will help us see what's happening
+            // DEBUG OUTPUT
             if (loopCount % 100 == 0) {
                 std::cout << "DEBUG - Loop: " << loopCount << std::endl;
                 std::cout << "  Player object: "
@@ -210,26 +210,33 @@ void Phantom::runClient() {
                 std::cout << "  Cheats count: " << cheats.size() << std::endl;
                 std::cout << "Detected game version: "
                           << GameVersionToString(g_GameVersion) << std::endl;
+
+                std::cout << "Axe class: "
+                          << Mapping::Get("net/minecraft/item/ItemAxe") << "\n";
+                std::cout << "Sword class: "
+                          << Mapping::Get("net/minecraft/item/ItemSword")
+                          << "\n";
             }
 
             if (!inGame) {
                 // Pass false to indicate not in game
                 window->update(cheats, running, false);
 
-                // Clean up any valid references
-                if (playerObj) env->DeleteLocalRef(playerObj);
-                if (worldObj) env->DeleteLocalRef(worldObj);
+                // COMMENT OUT the DeleteLocalRef calls for now
+                /*
+                if (playerObj) {
+                    env->DeleteLocalRef(playerObj);
+                    playerObj = nullptr;
+                }
+                if (worldObj) {
+                    env->DeleteLocalRef(worldObj);
+                    worldObj = nullptr;
+                }
+                */
 
                 loopCount++;
                 std::this_thread::sleep_for(std::chrono::milliseconds(10));
                 continue;
-            }
-
-            // We have both player and world - modules can run
-            if (loopCount % 200 == 0 || loopCount < 5) {
-                std::cout
-                    << "MODULES SHOULD BE ACTIVE - Player and world found!"
-                    << std::endl;
             }
 
             // Handle key updates in main thread (safer than detached thread)
@@ -252,9 +259,17 @@ void Phantom::runClient() {
             // Update UI with inGame = true
             window->update(cheats, running, true);
 
-            // Clean up local references
-            if (playerObj) env->DeleteLocalRef(playerObj);
-            if (worldObj) env->DeleteLocalRef(worldObj);
+            // COMMENT OUT the DeleteLocalRef calls for now
+            /*
+            if (playerObj) {
+                env->DeleteLocalRef(playerObj);
+                playerObj = nullptr;
+            }
+            if (worldObj) {
+                env->DeleteLocalRef(worldObj);
+                worldObj = nullptr;
+            }
+            */
 
             loopCount++;
 
@@ -268,13 +283,25 @@ void Phantom::runClient() {
     }
 
     std::cout << "Stopping client..." << std::endl;
+
+    // Ensure that all JNI operations are done before detaching
     window->destruct();
-    jvm->DetachCurrentThread();
-    delete mc;
-    delete window;
-    delete keyManager;
+
+    // COMMENT OUT detachment for now
+    /*
+    if (jvm) {
+        jvm->DetachCurrentThread();
+    }
+    */
+
+    // Clean up
+  //  delete mc;
+  //  delete window;
+  //  delete keyManager;
+
     std::cout << "Client stopped." << std::endl;
 }
+
 
 void Phantom::onKey(int key) {
     for (Cheat *cheat : cheats) {

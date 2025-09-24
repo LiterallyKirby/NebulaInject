@@ -1,35 +1,34 @@
 #pragma once
-#include "jni.h"
+
+#include <jni.h>
 #include "../Vec3.h"
 #include "ItemStack.h"
-#include "string"
-class Player
-{
-private:
-    JNIEnv* env;
-    jobject playerObj; // underlying Java player object
 
+#include "../impl/AxisAlignedBB.h"
+#include <string>
+
+class Player {
 public:
-    Player(JNIEnv* env, jobject playerObj) : env(env), playerObj(playerObj) {
-        if (playerObj)
-            this->playerObj = env->NewGlobalRef(playerObj); // keep global ref
-    }
+    // ctor/dtor defined in Player.cpp
+    Player(JNIEnv* env, jobject playerObj);
+    ~Player();
 
-    ~Player() {
-        if (playerObj)
-            env->DeleteGlobalRef(playerObj);
-    }
-
+    // Basic accessors
     std::string GetName(bool shouldEraseColor = false);
     float GetRotationPitch();
     float GetRotationYaw();
+    AxisAlignedBB_t GetBoundingBox();
     float GetRotationYawHead();
     float GetPrevRotationPitch();
     float GetPrevRotationYaw();
     float GetPrevRenderYawOffset();
- ItemStack* GetHeldItem();
+    ItemStack* GetHeldItem();
     float GetRenderYawOffset();
     float GetHealth();
+
+    jobject GetJObject() const { return playerObj; }
+    jobject GetBoundingBoxJavaObject();
+
     float GetMoveForward();
     float GetMoveStrafing();
     Vec3D GetLastTickPos();
@@ -45,7 +44,6 @@ public:
     bool IsInWater();
     int GetMaxHurtResistantTime();
     int GetHurtResistantTime();
-    jobject GetBoundingBox();
 
     jobject GetInventoryPlayer();
 
@@ -57,4 +55,11 @@ public:
     void SetRotationYaw(float buffer);
     void SetPrevRotationPitch(float buffer);
     void SetPrevRotationYaw(float buffer);
+
+private:
+    // Important: store both env (for convenience) and the JVM pointer
+    // so the destructor can safely attach if called from another thread.
+    JNIEnv* env = nullptr;
+    jobject playerObj = nullptr; // global ref, managed in cpp
+    JavaVM* jvm = nullptr;
 };

@@ -68,7 +68,7 @@ void VelocityModule::run(Minecraft* mc) {
     if (movingOnly && myPrevPos.x == myPos.x && myPrevPos.y == myPos.y && myPrevPos.z == myPos.z) return;
     if (weaponOnly) {
         const auto heldItem = (ItemStack*)thePlayer.GetHeldItem();
-        if (!heldItem || !heldItem->IsWeapon(env)) return;
+        if (!heldItem || !heldItem->IsWeapon()) return;
     }
 
     // Use the original timing logic - trigger on first frame of being hurt

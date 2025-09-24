@@ -4,8 +4,8 @@ project(phantom LANGUAGES C CXX)
 # === Sanitizer Options ===
 option(ENABLE_ASAN "Enable AddressSanitizer" ON)
 option(ENABLE_UBSAN "Enable UndefinedBehaviorSanitizer" ON)
-option(ENABLE_TSAN "Enable ThreadSanitizer" OFF)  # Don't use with ASAN
-option(ENABLE_MSAN "Enable MemorySanitizer" OFF)   # Don't use with ASAN
+option(ENABLE_TSAN "Enable ThreadSanitizer" OFF) # Don't use with ASAN
+option(ENABLE_MSAN "Enable MemorySanitizer" OFF) # Don't use with ASAN
 
 # === Java Configuration ===
 if(JAVA_HOME)
@@ -58,23 +58,23 @@ set(SANITIZER_LINK_FLAGS "")
 
 if(ENABLE_ASAN AND NOT ENABLE_TSAN AND NOT ENABLE_MSAN)
     message(STATUS "Enabling AddressSanitizer")
-    list(APPEND SANITIZER_FLAGS 
+    list(APPEND SANITIZER_FLAGS
         "-fsanitize=address"
         "-fno-omit-frame-pointer"
         "-fno-optimize-sibling-calls"
         "-O1"  # Better stack traces with O1
     )
     list(APPEND SANITIZER_LINK_FLAGS "-fsanitize=address")
-    
+
     # ASAN environment variables for better debugging
-    set_target_properties(phantom PROPERTIES
-        ENVIRONMENT "ASAN_OPTIONS=abort_on_error=1:halt_on_error=1:detect_leaks=1:check_initialization_order=1:strict_init_order=1:symbolize=1"
+    set_target_properties(phantom PROPERTIES ENVIRONMENT
+        "ASAN_OPTIONS=abort_on_error=1:halt_on_error=1:detect_leaks=1:check_initialization_order=1:strict_init_order=1:symbolize=1"
     )
 endif()
 
 if(ENABLE_UBSAN)
     message(STATUS "Enabling UndefinedBehaviorSanitizer")
-    list(APPEND SANITIZER_FLAGS 
+    list(APPEND SANITIZER_FLAGS
         "-fsanitize=undefined"
         "-fsanitize=float-divide-by-zero"
         "-fsanitize=float-cast-overflow"
@@ -87,15 +87,14 @@ if(ENABLE_TSAN AND NOT ENABLE_ASAN)
     message(STATUS "Enabling ThreadSanitizer")
     list(APPEND SANITIZER_FLAGS "-fsanitize=thread")
     list(APPEND SANITIZER_LINK_FLAGS "-fsanitize=thread")
-    
-    set_target_properties(phantom PROPERTIES
-        ENVIRONMENT "TSAN_OPTIONS=abort_on_error=1:halt_on_error=1:symbolize=1"
+    set_target_properties(phantom PROPERTIES ENVIRONMENT
+        "TSAN_OPTIONS=abort_on_error=1:halt_on_error=1:symbolize=1"
     )
 endif()
 
 if(ENABLE_MSAN AND NOT ENABLE_ASAN)
     message(STATUS "Enabling MemorySanitizer")
-    list(APPEND SANITIZER_FLAGS 
+    list(APPEND SANITIZER_FLAGS
         "-fsanitize=memory"
         "-fsanitize-memory-track-origins=2"
         "-fno-omit-frame-pointer"
@@ -106,16 +105,11 @@ endif()
 # Additional debugging flags
 if(CMAKE_BUILD_TYPE STREQUAL "Debug" OR SANITIZER_FLAGS)
     list(APPEND SANITIZER_FLAGS
-        "-g3"                    # Maximum debug info
-        "-ggdb"                  # GDB-specific debug info
-        "-fno-omit-frame-pointer" # Better stack traces
-        "-fstack-protector-strong" # Stack overflow detection
-        "-Wall"
-        "-Wextra"
-        "-Wpedantic"
-        "-Wformat-security"
-        "-Wstack-protector"
-        "-fstack-clash-protection"
+        "-g3"  # Maximum debug info
+        "-ggdb"  # GDB-specific debug info
+        "-fno-omit-frame-pointer"  # Better stack traces
+        "-fstack-protector-strong"  # Stack overflow detection
+        "-Wall" "-Wextra" "-Wpedantic" "-Wformat-security" "-Wstack-protector" "-fstack-clash-protection"
     )
 endif()
 

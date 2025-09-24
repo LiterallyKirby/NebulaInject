@@ -1,23 +1,33 @@
-
 #pragma once
 
-#include "Cheat.h" // <-- THIS IS THE FIX
-#include <Minecraft.h>
-#include <string>
+#include <random>
 #include "Cheat.h"
 
-
 enum class VelocityMode {
-    Clamp,
-    Scale,
-    Override
+    Clamp = 0,
+    Scale = 1,
+    Override = 2
 };
 
 class VelocityModule : public Cheat {
-private:
-    VelocityMode mode; // Mode setting
 public:
-    bool enabled;
+    VelocityModule();
+    ~VelocityModule();
+
+    void run(Minecraft* mc) override;
+    void renderSettings() override;
+
+    // Configuration methods
+    void clamp();
+    void scale(float h, float v);
+    void overrideMode(float h, float v);
+
+private:
+    void initialize();
+    void cleanup();
+
+    // Settings
+    VelocityMode mode;
     bool airOnly;
     bool movingOnly;
     bool weaponOnly;
@@ -25,19 +35,7 @@ public:
     int delay;
     float horizontal;
     float vertical;
-
-    VelocityModule();
-    ~VelocityModule();
-
-    void initialize();
-    void cleanup();
-
-    void clamp();
-    void scale(float h, float v);
-    void overrideMode(float h, float v);
-
-    void run(Minecraft* mc);
-    void renderSettings();
+    
+    // Random number generation for chance calculation
+    mutable std::mt19937 rng;
 };
-
-
