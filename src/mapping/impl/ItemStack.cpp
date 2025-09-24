@@ -193,25 +193,120 @@ bool ItemStack::IsWeapon() {
 
 // Keep your other methods but ensure they operate on itemStackObj (global ref)
 bool ItemStack::IsBlock(JNIEnv* env) {
-    if (!env || !itemStackObj) return false;
+    if (!env || !itemStackObj) {
+        std::cerr << "[ItemStack::IsBlock] Invalid env or itemStackObj\n";
+        return false;
+    }
+
     jobject itemObj = GetItem(env);
-    if (!itemObj) return false;
-    Klass* blockKlass =
-        Klass::Find(env, Mapping::Get("net/minecraft/item/ItemBlock").c_str());
-    bool res = blockKlass && env->IsInstanceOf(itemObj, (jclass)blockKlass);
+    if (!itemObj) {
+        std::cerr << "[ItemStack::IsBlock] itemObj is null\n";
+        return false;
+    }
+
+    // Get mapped class name (should return obfuscated name like "yo")
+    std::string blockClassName = Mapping::Get("net/minecraft/item/ItemBlock");
+    
+    bool isBlock = false;
+
+    // Try to find and check block class safely
+    if (!blockClassName.empty()) {
+        try {
+            // Use JNI FindClass with obfuscated name
+            jclass blockClass = env->FindClass(blockClassName.c_str());
+            if (blockClass && !env->ExceptionCheck()) {
+                isBlock = env->IsInstanceOf(itemObj, blockClass);
+                env->DeleteLocalRef(blockClass);
+                if (env->ExceptionCheck()) {
+                    env->ExceptionClear();
+                    isBlock = false;
+                }
+            } else {
+                if (env->ExceptionCheck()) {
+                    env->ExceptionClear();
+                }
+                std::cout << "[ItemStack::IsBlock] Could not find block class: " << blockClassName << "\n";
+            }
+        } catch (...) {
+            std::cerr << "[ItemStack::IsBlock] Exception during block class check\n";
+            isBlock = false;
+        }
+    }
+
+    // For debugging, also get the actual class name
+    jclass itemClass = env->GetObjectClass(itemObj);
+    std::string actualClassName = "unknown";
+    if (itemClass) {
+        jclass classClass = env->FindClass("java/lang/Class");
+        if (classClass) {
+            jmethodID getNameMethod = env->GetMethodID(classClass, "getName", "()Ljava/lang/String;");
+            if (getNameMethod) {
+                jstring classNameStr = (jstring)env->CallObjectMethod(itemClass, getNameMethod);
+                if (classNameStr) {
+                    const char* classNameChars = env->GetStringUTFChars(classNameStr, nullptr);
+                    if (classNameChars) {
+                        actualClassName = classNameChars;
+                        env->ReleaseStringUTFChars(classNameStr, classNameChars);
+                    }
+                    env->DeleteLocalRef(classNameStr);
+                }
+            }
+            env->DeleteLocalRef(classClass);
+        }
+        env->DeleteLocalRef(itemClass);
+    }
+
+    std::cout << "[ItemStack::IsBlock] Item class: " << actualClassName 
+              << ", Looking for Block: '" << blockClassName << "' (" << isBlock << ")"
+              << ", Result: " << isBlock << "\n";
+
     env->DeleteLocalRef(itemObj);
-    return res;
+    return isBlock;
 }
 
 bool ItemStack::IsEnderPearl(JNIEnv* env) {
-    if (!env || !itemStackObj) return false;
+    if (!env || !itemStackObj) {
+        std::cerr << "[ItemStack::IsEnderPearl] Invalid env or itemStackObj\n";
+        return false;
+    }
+
     jobject itemObj = GetItem(env);
-    if (!itemObj) return false;
-    Klass* pearlKlass = Klass::Find(
-        env, Mapping::Get("net/minecraft/item/ItemEnderPearl").c_str());
-    bool res = pearlKlass && env->IsInstanceOf(itemObj, (jclass)pearlKlass);
+    if (!itemObj) {
+        std::cerr << "[ItemStack::IsEnderPearl] itemObj is null\n";
+        return false;
+    }
+
+    // Get mapped class name (should return obfuscated name like "zk")
+    std::string pearlClassName = Mapping::Get("net/minecraft/item/ItemEnderPearl");
+    
+    bool isPearl = false;
+
+    // Try to find and check ender pearl class safely
+    if (!pearlClassName.empty()) {
+        try {
+            // Use JNI FindClass with obfuscated name
+            jclass pearlClass = env->FindClass(pearlClassName.c_str());
+            if (pearlClass && !env->ExceptionCheck()) {
+                isPearl = env->IsInstanceOf(itemObj, pearlClass);
+                env->DeleteLocalRef(pearlClass);
+                if (env->ExceptionCheck()) {
+                    env->ExceptionClear();
+                    isPearl = false;
+                }
+            } else {
+                if (env->ExceptionCheck()) {
+                    env->ExceptionClear();
+                }
+                std::cout << "[ItemStack::IsEnderPearl] Could not find pearl class: " << pearlClassName << "\n";
+            }
+        } catch (...) {
+            std::cerr << "[ItemStack::IsEnderPearl] Exception during pearl class check\n";
+            isPearl = false;
+        }
+    }
+
     env->DeleteLocalRef(itemObj);
-    return res;
+    return isPearl;
 }
 
 bool ItemStack::Is(const char* clazz, JNIEnv* env) {
