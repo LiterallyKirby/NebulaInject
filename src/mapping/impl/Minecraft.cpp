@@ -3,13 +3,25 @@
 #include "../Field.h"
 #include "../Method.h"
 #include "../Mapping.h"
+#include <jni.h>
 #include <iostream>
 
 extern Klass* g_Instance;
 
+
 Minecraft::Minecraft(Phantom* phantom) {
     (void)phantom;
+
+    jint res = phantom->jvm->GetEnv((void**)&env, JNI_VERSION_1_8);
+    if (res == JNI_EDETACHED)
+        res = phantom->jvm->AttachCurrentThread((void**)&env, nullptr);
+
+    if (res != JNI_OK) {
+        env = nullptr;
+        std::cerr << "Failed to attach to JVM" << std::endl;
+    }
 }
+
 
 
 jobject Minecraft::GetTheMinecraft(JNIEnv* env)

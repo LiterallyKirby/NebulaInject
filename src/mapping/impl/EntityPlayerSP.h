@@ -1,6 +1,7 @@
 #pragma once
 #include "jni.h"
 #include "../Vec3.h"
+#include "ItemStack.h"
 #include "string"
 class Player
 {
@@ -26,6 +27,7 @@ public:
     float GetPrevRotationPitch();
     float GetPrevRotationYaw();
     float GetPrevRenderYawOffset();
+ ItemStack* GetHeldItem();
     float GetRenderYawOffset();
     float GetHealth();
     float GetMoveForward();
@@ -44,7 +46,7 @@ public:
     int GetMaxHurtResistantTime();
     int GetHurtResistantTime();
     jobject GetBoundingBox();
-    jobject GetHeldItem();
+
     jobject GetInventoryPlayer();
 
     void SetAlwaysRenderNameTag(bool state);

@@ -4,7 +4,7 @@
 #include <string>
 #include <vector>
 #include <cstring>
-
+#include "ItemStack.h"
 
 
 
@@ -60,12 +60,56 @@ for (size_t i = 0; i < ret.size(); ++i) {
 }
 
 
+
+
+
+ItemStack* Player::GetHeldItem() {
+    if (!playerObj || !env) return nullptr;
+
+    jclass clazz = env->GetObjectClass(playerObj);
+    jmethodID getHeldItemMethod = env->GetMethodID(clazz, Mapping::Get("getHeldItem").c_str(), "()Lnet/minecraft/item/ItemStack;");
+    if (!getHeldItemMethod) {
+        env->DeleteLocalRef(clazz);
+        return nullptr;
+    }
+
+    jobject heldItemObj = env->CallObjectMethod(playerObj, getHeldItemMethod);
+    env->DeleteLocalRef(clazz);
+
+    if (!heldItemObj) return nullptr;
+
+    return new ItemStack(env, heldItemObj); // pass env and jobject
+}
+
+
+
 float Player::GetRotationPitch()
 {
     if (!playerObj || !env) return 0.0f;
     jclass clazz = env->GetObjectClass(playerObj);
     jfieldID field = env->GetFieldID(clazz, Mapping::Get("rotationPitch").c_str(), "F");
     float val = env->GetFloatField(playerObj, field);
+    env->DeleteLocalRef(clazz);
+    return val;
+}
+
+
+int Player::GetMaxHurtResistantTime() {
+    if (!playerObj || !env) return 0;
+
+    jclass clazz = env->GetObjectClass(playerObj);
+    jfieldID field = env->GetFieldID(clazz, Mapping::Get("maxHurtResistantTime").c_str(), "I"); // "I" = int
+    int val = env->GetIntField(playerObj, field);
+    env->DeleteLocalRef(clazz);
+    return val;
+}
+
+int Player::GetHurtResistantTime() {
+    if (!playerObj || !env) return 0;
+
+    jclass clazz = env->GetObjectClass(playerObj);
+    jfieldID field = env->GetFieldID(clazz, Mapping::Get("hurtResistantTime").c_str(), "I"); // "I" = int
+    int val = env->GetIntField(playerObj, field);
     env->DeleteLocalRef(clazz);
     return val;
 }

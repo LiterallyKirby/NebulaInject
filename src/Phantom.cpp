@@ -28,6 +28,9 @@
 #include <unordered_map>
 
 #include "cheats/AutoClicker.h"
+#include "cheats/Velocity.h"
+
+
 #include "ui/KeyManager.h"
 #include "ui/PhantomWindow.h"
 
@@ -154,6 +157,7 @@ Phantom::Phantom() {
     Mapping::Initialize(g_GameVersion);
 
     cheats.push_back(new AutoClicker());
+cheats.push_back(new VelocityModule());
     std::cout << "Phantom initialized successfully" << std::endl;
 }
 

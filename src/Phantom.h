@@ -14,6 +14,8 @@ class Cheat;
 class Phantom {
 public:
     Phantom();
+ JavaVM *jvm;
+    JNIEnv *env;
 GameVersions DetectGameVersion(); // Add this
     void runClient();
     void onKey(int key);
@@ -30,8 +32,7 @@ private:
     std::vector<Cheat *> cheats{};
 
     bool running;
-    JavaVM *jvm;
-    JNIEnv *env;
+   
 };
 
 #endif // PHANTOM_PHANTOM_H

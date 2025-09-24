@@ -7,6 +7,7 @@ class Minecraft
 {
 public:
 explicit Minecraft(Phantom *phantom);
+ JNIEnv* env; // <-- store it
 	static jobject GetTheMinecraft(JNIEnv* env);
 	static jobject GetThePlayer(JNIEnv* env);
 	static jobject GetTheWorld(JNIEnv* env);
