@@ -15,7 +15,7 @@ class Phantom {
 public:
     Phantom();
 
-    JNIEnv *env;
+
 GameVersions DetectGameVersion(); // Add this
     void runClient();
     void onKey(int key);

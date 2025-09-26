@@ -230,22 +230,15 @@ void ReachModule::run(Minecraft* mc) {
             dist -= hypothenuseDistance;
         }
 
-        auto GetAngle = [](float ex, float ez, Vec3D mypos) -> float {
-            const float dx = ex - static_cast<float>(mypos.x);
-            const float dz = ez - static_cast<float>(mypos.z);
+     
+auto GetAngle = [](float ex, float ez, Vec3D mypos) -> float {
+    const float dx = ex - static_cast<float>(mypos.x);
+    const float dz = ez - static_cast<float>(mypos.z);
 
-            float angle = static_cast<float>(-atanf(dx / dz) * 180.0f /
-                                             std::numbers::pi_v<float>);
+    float angle = atan2f(dz, dx) * 180.0f / std::numbers::pi_v<float>;
+    return angle;
+};
 
-            if (dz < 0.0f && dx < 0.0f) {
-                angle = 90.0f + static_cast<float>(atanf(dz / dx) * 180.0f /
-                                                   std::numbers::pi_v<float>);
-            } else if (dz < 0.0f && dx > 0.0f) {
-                angle = -90.0f + static_cast<float>(atanf(dz / dx) * 180.0f /
-                                                    std::numbers::pi_v<float>);
-            }
-            return angle;
-        };
 
         const float angle = GetAngle(x, z, thePlayerPos);
         const float ax =

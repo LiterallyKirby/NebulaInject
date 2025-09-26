@@ -16,6 +16,6 @@ private:
     void initialize();
     void cleanup();
 Phantom* phantom; // store phantom pointer
-    bool enabled;   // toggle state
+
     int exampleSetting; // example user-configurable setting
 };

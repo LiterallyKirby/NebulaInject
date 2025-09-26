@@ -28,6 +28,7 @@
 #include <unordered_map>
 
 #include "cheats/AutoClicker.h"
+#include "cheats/AimAssist.h"
 #include "cheats/Fastplace.h"
 #include "cheats/Reach.h"
 #include "cheats/Velocity.h"
@@ -93,6 +94,7 @@ std::string GameVersionToString(GameVersions version) {
 }
 
 GameVersions Phantom::DetectGameVersion() {
+  JNIEnv* env = getEnv();
     std::string title = GetMinecraftWindowTitle();
     std::cout << "Title: " << title << std::endl;
 
@@ -136,7 +138,7 @@ GameVersions g_GameVersion = CASUAL_1_7_10;
 Phantom::Phantom() {
     running = false;
     jvm = nullptr;
-    env = nullptr;
+JNIEnv* env = getEnv();
 
     jsize count;
     if (JNI_GetCreatedJavaVMs(&jvm, 1, &count) != JNI_OK || count == 0) {
@@ -160,6 +162,7 @@ Phantom::Phantom() {
     cheats.push_back(new FastPlaceModule(this));
     cheats.push_back(new VelocityModule());
     cheats.push_back(new ReachModule(this));
+    cheats.push_back(new AimAssist(this));
 
     std::cout << "Phantom initialized successfully" << std::endl;
 }
@@ -172,7 +175,7 @@ void Phantom::runClient() {
     auto *window = new NebulaWindow(700, 500, "Phantom");
     window->setup();
     auto *keyManager = new KeyManager();
-
+JNIEnv* env = getEnv();
     int loopCount = 0;
     while (running) {
         try {
@@ -323,7 +326,24 @@ void Phantom::onKey(int key) {
 
 JavaVM *Phantom::getJvm() { return jvm; }
 
-JNIEnv *Phantom::getEnv() { return env; }
+
+
+JNIEnv* Phantom::getEnv() {
+    if (!jvm) return nullptr;
+
+    JNIEnv* env = nullptr;
+    jint ret = jvm->GetEnv(reinterpret_cast<void**>(&env), JNI_VERSION_1_8);
+
+    if (ret == JNI_EDETACHED) {
+        if (jvm->AttachCurrentThread(reinterpret_cast<void**>(&env), nullptr) != JNI_OK) {
+            return nullptr;
+        }
+    }
+
+    return env;
+}
+
+
 
 void Phantom::setRunning(bool p_running) { this->running = p_running; }
 
